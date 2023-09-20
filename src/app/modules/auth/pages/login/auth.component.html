@@ -1,0 +1,25 @@
+<div class="auth-container">
+  <div>
+    <h2> {{ currentPath === 'login' ? 'Welcome to Finance Manager' : 'Create an account'}} </h2>
+    <p>Please, enter your email and password</p>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <mat-form-field>
+        <mat-label>Email</mat-label>
+        <input matInput required placeholder="Email" formControlName="email">
+      </mat-form-field>
+      <br />
+      <mat-form-field>
+        <mat-label>Password</mat-label>
+        <input matInput required placeholder="Password" formControlName="password" type="password">
+      </mat-form-field>
+      <br />
+      <button mat-raised-button color="success" type="submit">{{ currentPath === 'login' ? 'Sign up' : 'Login'}}</button>
+    </form>
+    <p>
+      {{ currentPath === 'login' ? 'Don\'t have an account?' : 'Already have an account?'}}
+      <a href="#" routerLink="{{currentPath === 'login' ? '/signup' : '/login'}}">
+        {{ currentPath === 'login' ? 'Sign up' : 'Login'}}</a>
+    </p>
+  </div>
+</div>
+

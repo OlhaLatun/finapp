@@ -1,1 +1,16 @@
 /* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; padding: 0; box-sizing: border-box; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+// Buttons
+// BUTTON_SUCCESS
+.mdc-button.mdc-button--raised.mat-mdc-raised-button.mat-success {
+  background-color: #155724;
+  color: #f0fff3;
+}
+
+.mdc-button.mdc-button--raised.mat-mdc-raised-button.mat-success:hover {
+  background-color: #f0fff3;
+  color: #155724;
+}
