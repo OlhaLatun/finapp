@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { User } from '../../interfaces/user.interface';
+import { UserCredentials, User } from '../../../../interfaces/user.interface';
 
 @Injectable({
     providedIn: 'root',
@@ -10,8 +10,18 @@ export class AuthApiService {
     private baseUrl = 'https://lovelyspider.backendless.app';
     constructor(private readonly http: HttpClient) {}
 
-    public registerNewUser(user: User): Observable<any> {
-        console.log(this.baseUrl);
-        return this.http.post<any>(`${this.baseUrl}/api/users/register`, user);
+    public registerNewUser(credentials: UserCredentials): Observable<void> {
+        return this.http.post<void>(
+            `${this.baseUrl}/api/users/register`,
+            credentials,
+        );
+    }
+
+    public loginUser(credentials: UserCredentials): Observable<any> {
+        console.log(credentials);
+        return this.http.post<any>(
+            `${this.baseUrl}/api/users/login`,
+            credentials,
+        );
     }
 }
