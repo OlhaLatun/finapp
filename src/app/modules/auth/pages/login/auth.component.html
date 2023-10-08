@@ -13,12 +13,12 @@
         <input matInput required placeholder="Password" formControlName="password" type="password">
       </mat-form-field>
       <br />
-      <button mat-raised-button color="success" type="submit">{{ currentPath === 'login' ? 'Sign up' : 'Login'}}</button>
+      <button mat-raised-button color="success" type="submit">{{ currentPath === 'login' ? 'Login' : 'Sign Up'}}</button>
     </form>
     <p>
       {{ currentPath === 'login' ? 'Don\'t have an account?' : 'Already have an account?'}}
       <a href="#" routerLink="{{currentPath === 'login' ? '/signup' : '/login'}}">
-        {{ currentPath === 'login' ? 'Sign up' : 'Login'}}</a>
+        {{ currentPath === 'login' ? 'Login' : 'Sign up'}}</a>
     </p>
   </div>
 </div>

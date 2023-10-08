@@ -16,11 +16,14 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MatInputModule } from '@angular/material/input';
 import { AuthComponent } from './modules/auth/pages/login/auth.component';
-import { AuthApiService } from './services/auth-api-service/auth.api.service';
+import { AuthApiService } from './modules/auth/services/auth-api-service/auth.api.service';
 import { HttpClientModule } from '@angular/common/http';
+import { WalletComponent } from './components/wallet/wallet.component';
+import { BudgetPlannerComponent } from './components/budget-planner/budget-planner.component';
+import { AnalyticsComponent } from './components/analytics/analytics.component';
 
 @NgModule({
-    declarations: [AppComponent, AuthComponent],
+    declarations: [AppComponent, AuthComponent, WalletComponent, BudgetPlannerComponent, AnalyticsComponent],
     imports: [
         ReactiveFormsModule,
         BrowserModule,
