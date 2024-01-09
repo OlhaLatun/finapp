@@ -1,27 +1,33 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { UserCredentials, User } from '../../../../interfaces/user.interface';
+import { UserCredentials } from '../../../../interfaces/user.interface';
+import { User } from '../../../../models/user.model';
 
 @Injectable({
     providedIn: 'root',
 })
 export class AuthApiService {
-    private baseUrl = 'https://lovelyspider.backendless.app';
+    private baseUrl = 'https://cherrycreature.backendless.app';
     constructor(private readonly http: HttpClient) {}
 
-    public registerNewUser(credentials: UserCredentials): Observable<void> {
-        return this.http.post<void>(
+    public registerNewUser(credentials: UserCredentials): Observable<User> {
+        return this.http.post<User>(
             `${this.baseUrl}/api/users/register`,
             credentials,
         );
     }
 
-    public loginUser(credentials: UserCredentials): Observable<any> {
-        console.log(credentials);
-        return this.http.post<any>(
+    public loginUser(credentials: UserCredentials): Observable<User> {
+        return this.http.post<User>(
             `${this.baseUrl}/api/users/login`,
-            credentials,
+          { login: credentials.email, password: credentials.password },
         );
+    }
+
+    public logout(userToken: string): Observable<any> {
+      return this.http.get(this.baseUrl + 'api/users/logout', {
+          headers: { 'user-token': userToken}
+      })
     }
 }

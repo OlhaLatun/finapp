@@ -21,6 +21,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { WalletComponent } from './components/wallet/wallet.component';
 import { BudgetPlannerComponent } from './components/budget-planner/budget-planner.component';
 import { AnalyticsComponent } from './components/analytics/analytics.component';
+import { UserService } from './services/user.service';
 
 @NgModule({
     declarations: [AppComponent, AuthComponent, WalletComponent, BudgetPlannerComponent, AnalyticsComponent],
@@ -44,6 +45,7 @@ import { AnalyticsComponent } from './components/analytics/analytics.component';
             useValue: { appearance: 'outline' },
         },
         AuthApiService,
+        UserService,
     ],
     bootstrap: [AppComponent],
 })
