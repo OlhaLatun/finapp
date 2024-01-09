@@ -4,10 +4,10 @@ import { User } from '../models/user.model';
 
 @Injectable()
 export class UserService {
-  private readonly user = new BehaviorSubject<Partial<User>>(new User({}))
+  private readonly user = new BehaviorSubject<Partial<User>>(new User())
 
-  public setCurrentUser(user: Partial<User>): void {
-    this.user.next(new User(user))
+  public setCurrentUser(user: any): void {
+    this.user.next(new User().assign(user))
   }
 
   public getCurrentUserObservable(): Observable<Partial<User>> {

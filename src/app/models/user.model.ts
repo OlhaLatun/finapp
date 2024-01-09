@@ -1,15 +1,15 @@
-import { BaseModel } from './base.model';
+
 import { UserName } from '../interfaces/user.interface';
 
-export class User extends BaseModel {
+export class User {
 
   public name = '';
   public email = '';
   public userId = '';
-  public userToken = '';
-  constructor(data: Partial<UserName>) {
-    super();
+  public 'user-token' = '';
 
-    this.assign(data);
+  assign(data: Partial<UserName>){
+      Object.assign(this, data)
+    return this;
   }
 }

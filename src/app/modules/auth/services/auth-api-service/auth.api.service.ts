@@ -26,7 +26,7 @@ export class AuthApiService {
     }
 
     public logout(userToken: string): Observable<any> {
-      return this.http.get(this.baseUrl + 'api/users/logout', {
+      return this.http.get(this.baseUrl + '/api/users/logout', {
           headers: { 'user-token': userToken}
       })
     }
