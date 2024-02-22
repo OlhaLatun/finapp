@@ -1,13 +1,14 @@
-.main-icon {
-  color: darkgreen;
-  padding-right: 10px;
+:host {
+  flex: 2;
 }
+.navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
-  mat-tab-group {
-    flex: 6;
-  }
   .user-img {
     display: flex;
     align-items: center;
   }
+}
 
