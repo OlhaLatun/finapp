@@ -1,16 +1,22 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { User } from '../models/user.model';
+import { UsersApiService } from './users.api.service';
 
 @Injectable()
 export class UserService {
-  private readonly user = new BehaviorSubject<Partial<User>>(new User())
+    private readonly user = new BehaviorSubject<User | null>(null);
 
-  public setCurrentUser(user: any): void {
-    this.user.next(new User().assign(user))
-  }
+    constructor(private readonly usersApiService: UsersApiService) {}
+    public setCurrentUser(user: any): void {
+        this.user.next(user);
+    }
 
-  public getCurrentUserObservable(): Observable<Partial<User>> {
-   return  this.user.asObservable()
-  }
+    public getCurrentUserObservable(): Observable<User | null> {
+        return this.user.asObservable();
+    }
+
+    getUserById(objectId: string): Observable<User> {
+        return this.usersApiService.getUserById(objectId);
+    }
 }

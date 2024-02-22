@@ -1,8 +1,9 @@
-import {  Component, OnInit } from '@angular/core';
-import { UserService } from './services/user.service';
+import { Component, OnInit } from '@angular/core';
 import { User } from './models/user.model';
 import { AuthApiService } from './modules/auth/services/auth-api-service/auth.api.service';
 import { Router } from '@angular/router';
+import { LocalStorageService } from './services/local-storage.service';
+import { UserService } from './services/user.service';
 
 @Component({
     selector: 'app-root',
@@ -11,29 +12,37 @@ import { Router } from '@angular/router';
 })
 export class AppComponent implements OnInit {
     public title = 'Finance Manager';
-    public userName: string | undefined;
-    private userToken: string;
 
-    constructor(private readonly userService: UserService,
-                private readonly authService: AuthApiService,
-                private readonly router: Router) {
-    }
+    constructor(
+        private readonly authService: AuthApiService,
+        private readonly router: Router,
+        private readonly localStorage: LocalStorageService,
+        private readonly userService: UserService,
+    ) {}
 
     public ngOnInit(): void {
-      this.userService.getCurrentUserObservable().subscribe((user: Partial<User>) => {
-       if (user.email || user.name) {
-         this.userName = user?.email || user?.name
-       }
-       if (user) {
-         this.userToken = user['user-token'] || ''
-       }
-      })
+        if (!this.authService.getUserID()) {
+            this.router.navigate(['/login']);
+        } else {
+            this.userService
+                .getUserById(this.authService.getUserID())
+                .subscribe((user) => {
+                    this.userService.setCurrentUser(user);
+                });
+        }
     }
 
-  public logout(): void {
-      this.authService.logout(this.userToken).subscribe(() => {
-       this.userName = '';
-       this.router.navigate(['/login'])
-      })
+    public logout(): void {
+        const userToken = this.authService.getToken();
+
+        if (!userToken) {
+            return;
+        }
+
+        this.authService.logout(userToken).subscribe(() => {
+            this.userService.setCurrentUser(null);
+            this.localStorage.clearStorage();
+            this.router.navigate(['/login']);
+        });
     }
 }

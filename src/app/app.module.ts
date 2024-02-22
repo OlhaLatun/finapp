@@ -22,9 +22,12 @@ import { WalletComponent } from './components/wallet/wallet.component';
 import { BudgetPlannerComponent } from './components/budget-planner/budget-planner.component';
 import { AnalyticsComponent } from './components/analytics/analytics.component';
 import { UserService } from './services/user.service';
+import { LocalStorageService } from './services/local-storage.service';
+import { UsersApiService } from './services/users.api.service';
+import { NavigationComponent } from './components/navigation/navigation.component';
 
 @NgModule({
-    declarations: [AppComponent, AuthComponent, WalletComponent, BudgetPlannerComponent, AnalyticsComponent],
+    declarations: [AppComponent, AuthComponent, WalletComponent, BudgetPlannerComponent, AnalyticsComponent, NavigationComponent],
     imports: [
         ReactiveFormsModule,
         BrowserModule,
@@ -46,6 +49,8 @@ import { UserService } from './services/user.service';
         },
         AuthApiService,
         UserService,
+        LocalStorageService,
+        UsersApiService
     ],
     bootstrap: [AppComponent],
 })
