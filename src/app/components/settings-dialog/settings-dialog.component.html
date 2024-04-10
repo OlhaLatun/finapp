@@ -1,0 +1,71 @@
+<div class="settings-dialog">
+    <div class="dialog-heading">
+        <h2 class="mat-h2">Settings</h2>
+        <button
+            class="close-button"
+            (click)="closeDialog($event)"
+            mat-icon-button
+            color="primary"
+        >
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+    <mat-dialog-content>
+        <p class="mat-body-2">Please, answer the following questions</p>
+        <small class="mat-small"
+            >You can always
+            <a href="#" (click)="closeDialog($event)">skip</a> settings and
+            provide them later.</small
+        >
+        <form [formGroup]="settingsForm" class="dialog-form">
+            <mat-form-field>
+                <mat-label>Select currency:</mat-label>
+                <mat-select
+                    class="input"
+                    formControlName="currency"
+                    [(value)]="currency[0].name"
+                    placeholder="Select currency"
+                >
+                    <mat-option *ngFor="let c of currency" [value]="c.name"
+                        >{{ c.name }} {{ c.symbol }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Your monthly income:</mat-label>
+                <input
+                    class="input"
+                    formControlName="income"
+                    matInput
+                    name="income"
+                    type="text"
+                    placeholder="Enter your income"
+                    [value]="0"
+                />
+            </mat-form-field>
+
+            <mat-label>Do you use a credit card?</mat-label>
+            <mat-radio-group
+                formControlName="creditCard"
+                class="input"
+                name="creditCard"
+            >
+                <mat-radio-button [value]="true"> Yes</mat-radio-button>
+                <mat-radio-button [value]="false"> No</mat-radio-button>
+            </mat-radio-group>
+        </form>
+    </mat-dialog-content>
+
+    <mat-dialog-actions class="button-container">
+        <button
+            mat-raised-button
+            color="success"
+            type="submit"
+            (click)="onSaveClick()"
+            [disabled]="settingsForm.invalid"
+        >
+            Save
+        </button>
+        <button mat-stroked-button (click)="closeDialog($event)">Cancel</button>
+    </mat-dialog-actions>
+</div>
