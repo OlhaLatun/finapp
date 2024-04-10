@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { User } from './models/user.model';
-import { AuthApiService } from './modules/auth/services/auth-api-service/auth.api.service';
 import { Router } from '@angular/router';
+import { AuthApiService } from './modules/auth/services/auth-api-service/auth.api.service';
 import { LocalStorageService } from './services/local-storage.service';
 import { UserService } from './services/user.service';
 
@@ -21,19 +20,17 @@ export class AppComponent implements OnInit {
     ) {}
 
     public ngOnInit(): void {
-        if (!this.authService.getUserID()) {
+        if (!this.userService.getUserID()) {
             this.router.navigate(['/login']);
         } else {
-            this.userService
-                .getUserById(this.authService.getUserID())
-                .subscribe((user) => {
-                    this.userService.setCurrentUser(user);
-                });
+            this.userService.getUserById().subscribe((user) => {
+                this.userService.setCurrentUser(user);
+            });
         }
     }
 
     public logout(): void {
-        const userToken = this.authService.getToken();
+        const userToken = this.userService.getUserToken();
 
         if (!userToken) {
             return;

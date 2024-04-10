@@ -3,25 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UserCredentials } from '../../../../interfaces/user.interface';
 import { User } from '../../../../models/user.model';
-import { LocalStorageService } from '../../../../services/local-storage.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class AuthApiService {
-    private baseUrl = 'https://cherrycreature.backendless.app';
-    constructor(
-        private readonly http: HttpClient,
-        private readonly localStorage: LocalStorageService,
-    ) {}
+    private baseUrl = 'https://ferventselection.backendless.app';
+    constructor(private readonly http: HttpClient) {}
 
-    public getToken(): string {
-        return this.localStorage.getItem('user-token') || '';
-    }
-
-    public getUserID(): string {
-        return this.localStorage.getItem('objectId') || '';
-    }
     public registerNewUser(credentials: UserCredentials): Observable<User> {
         return this.http.post<User>(
             `${this.baseUrl}/api/users/register`,
