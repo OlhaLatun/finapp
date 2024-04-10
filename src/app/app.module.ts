@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
     MAT_FORM_FIELD_DEFAULT_OPTIONS,
     MatFormFieldModule,
@@ -25,32 +25,57 @@ import { UserService } from './services/user.service';
 import { LocalStorageService } from './services/local-storage.service';
 import { UsersApiService } from './services/users.api.service';
 import { NavigationComponent } from './components/navigation/navigation.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { SettingsDialogComponent } from './components/settings-dialog/settings-dialog.component';
+import {
+    MAT_RADIO_DEFAULT_OPTIONS,
+    MatRadioModule,
+} from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
+import { AuthService } from './modules/auth/services/auth-service/auth.service';
 
 @NgModule({
-    declarations: [AppComponent, AuthComponent, WalletComponent, BudgetPlannerComponent, AnalyticsComponent, NavigationComponent],
+    declarations: [
+        AppComponent,
+        AuthComponent,
+        WalletComponent,
+        BudgetPlannerComponent,
+        AnalyticsComponent,
+        NavigationComponent,
+        SettingsDialogComponent,
+    ],
     imports: [
+        MatFormFieldModule,
+        MatSelectModule,
+        MatInputModule,
         ReactiveFormsModule,
         BrowserModule,
         AppRoutingModule,
         BrowserAnimationsModule,
-        MatFormFieldModule,
-        MatInputModule,
         MatButtonModule,
         MatTabsModule,
         MatToolbarModule,
         MatIconModule,
         MatMenuModule,
         HttpClientModule,
+        MatDialogModule,
+        MatRadioModule,
+        FormsModule,
     ],
     providers: [
         {
             provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
             useValue: { appearance: 'outline' },
         },
+        {
+            provide: MAT_RADIO_DEFAULT_OPTIONS,
+            useValue: { color: 'primary' },
+        },
         AuthApiService,
+        AuthService,
         UserService,
         LocalStorageService,
-        UsersApiService
+        UsersApiService,
     ],
     bootstrap: [AppComponent],
 })
