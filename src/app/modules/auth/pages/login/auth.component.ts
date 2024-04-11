@@ -40,7 +40,11 @@ export class AuthComponent {
             this.getAuthObservable(credentials).subscribe({
                 next: () => {
                     this.router.navigate(['/wallet']);
-                    this.dialog.open(SettingsDialogComponent);
+                    this.dialog.open(SettingsDialogComponent, {
+                        height: '535px',
+                        width: '600px',
+                        panelClass: 'my-dialog',
+                    });
                 },
                 error: (error) => console.log(error),
             });

@@ -4,6 +4,10 @@ import { UserService } from '../../services/user.service';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsDialogComponent } from '../settings-dialog/settings-dialog.component';
 
+interface TabLink {
+    title: string;
+    key: string;
+}
 @Component({
     selector: 'app-navigation',
     templateUrl: './navigation.component.html',
@@ -16,6 +20,13 @@ export class NavigationComponent implements OnInit {
         private readonly userService: UserService,
         private readonly dialog: MatDialog,
     ) {}
+
+    public links: TabLink[] = [
+        { title: 'Wallet', key: 'wallet' },
+        { title: 'Budget Planner', key: 'planner' },
+        { title: 'Analytics', key: 'analytics' },
+    ];
+    public activeLink: TabLink = this.links[0];
     public ngOnInit() {
         this.userService.getCurrentUserObservable().subscribe((user) => {
             this.currentUser = user;
@@ -32,5 +43,9 @@ export class NavigationComponent implements OnInit {
             width: '600px',
             panelClass: 'my-dialog',
         });
+    }
+
+    public setActiveLink(link: TabLink): void {
+        this.activeLink = link;
     }
 }
