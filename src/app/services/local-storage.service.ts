@@ -8,7 +8,7 @@ export class LocalStorageService {
         localStorage.setItem(key, JSON.stringify(value));
     }
 
-    public getItem(key: string): string {
+    public getItem<T = any>(key: string): T {
         return localStorage.getItem(key)
             ? JSON.parse(localStorage.getItem(key) || '')
             : null;
