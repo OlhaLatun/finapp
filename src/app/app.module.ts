@@ -33,6 +33,7 @@ import {
 } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { AuthService } from './modules/auth/services/auth-service/auth.service';
+import { AuthGuard } from './modules/auth/services/auth-guard/auth-guard.service';
 
 @NgModule({
     declarations: [
@@ -76,6 +77,7 @@ import { AuthService } from './modules/auth/services/auth-service/auth.service';
         UserService,
         LocalStorageService,
         UsersApiService,
+        AuthGuard,
     ],
     bootstrap: [AppComponent],
 })
