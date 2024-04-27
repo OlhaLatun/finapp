@@ -3,6 +3,7 @@ import { User } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsDialogComponent } from '../settings-dialog/settings-dialog.component';
+import { Observable } from 'rxjs';
 
 interface TabLink {
     title: string;
@@ -14,7 +15,7 @@ interface TabLink {
     styleUrls: ['./navigation.component.scss'],
 })
 export class NavigationComponent implements OnInit {
-    public currentUser: User | null;
+    public currentUser$: Observable<User | null>;
     @Output() public onLogout: EventEmitter<void> = new EventEmitter();
     constructor(
         private readonly userService: UserService,
@@ -28,9 +29,7 @@ export class NavigationComponent implements OnInit {
     ];
     public activeLink: TabLink = this.links[0];
     public ngOnInit() {
-        this.userService.getCurrentUserObservable().subscribe((user) => {
-            this.currentUser = user;
-        });
+        this.currentUser$ = this.userService.getCurrentUserObservable();
     }
 
     public logout(): void {

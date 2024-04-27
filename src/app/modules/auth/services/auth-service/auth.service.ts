@@ -5,6 +5,7 @@ import { AuthApiService } from '../auth-api-service/auth.api.service';
 import { UserCredentials } from '../../../../interfaces/user.interface';
 import { User } from '../../../../models/user.model';
 import { UserService } from '../../../../services/user.service';
+import { LocalStorageKeys } from '../../../../enums/local-storage-keys.enum';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -25,10 +26,13 @@ export class AuthService {
             tap((response) => {
                 this.userService.setCurrentUser(response);
                 this.localStorageService.setItem(
-                    'user-token',
+                    LocalStorageKeys.userToken,
                     response['user-token'],
                 );
-                this.localStorageService.setItem('objectId', response.objectId);
+                this.localStorageService.setItem(
+                    LocalStorageKeys.userId,
+                    response.objectId,
+                );
             }),
         );
     }

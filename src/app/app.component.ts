@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthApiService } from './modules/auth/services/auth-api-service/auth.api.service';
 import { LocalStorageService } from './services/local-storage.service';
 import { UserService } from './services/user.service';
+import { LocalStorageKeys } from './enums/local-storage-keys.enum';
 
 @Component({
     selector: 'app-root',
@@ -38,7 +39,8 @@ export class AppComponent implements OnInit {
 
         this.authService.logout(userToken).subscribe(() => {
             this.userService.setCurrentUser(null);
-            this.localStorage.clearStorage();
+            this.localStorage.removeItem(LocalStorageKeys.userId);
+            this.localStorage.removeItem(LocalStorageKeys.userToken);
             this.router.navigate(['/login']);
         });
     }

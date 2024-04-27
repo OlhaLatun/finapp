@@ -58,11 +58,19 @@
 
     <mat-dialog-actions class="button-container">
         <button
+            *ngIf="!isDefaultSettings"
+            mat-raised-button
+            color="success"
+            (click)="onResetClick()"
+        >
+            Edit
+        </button>
+        <button
             mat-raised-button
             color="success"
             type="submit"
             (click)="onSaveClick()"
-            [disabled]="settingsForm.invalid"
+            [disabled]="settingsForm?.invalid"
         >
             Save
         </button>
