@@ -62,7 +62,7 @@ export class SettingsDialogComponent implements OnInit {
             });
 
             this.localStorageService.setItem(
-                LocalStorageKeys.settings,
+                LocalStorageKeys.Settings,
                 settings,
             );
             this.dialogRef.close();

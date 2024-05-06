@@ -1,5 +1,5 @@
 export enum LocalStorageKeys {
-    userId = 'objectId',
-    userToken = 'user-token',
-    settings = 'settings',
+    UserId = 'objectId',
+    UserToken = 'user-token',
+    Settings = 'settings',
 }
