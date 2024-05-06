@@ -66,7 +66,7 @@ export class AuthComponent implements OnInit {
                     this.router.navigate(['/wallet']);
                     if (
                         !this.localStorageService.getItem(
-                            LocalStorageKeys.settings,
+                            LocalStorageKeys.Settings,
                         )
                     ) {
                         this.dialog.open(SettingsDialogComponent, {

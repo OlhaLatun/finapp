@@ -4,6 +4,7 @@ import { AuthApiService } from './modules/auth/services/auth-api-service/auth.ap
 import { LocalStorageService } from './services/local-storage.service';
 import { UserService } from './services/user.service';
 import { LocalStorageKeys } from './enums/local-storage-keys.enum';
+import { AuthService } from './modules/auth/services/auth-service/auth.service';
 
 @Component({
     selector: 'app-root',
@@ -14,13 +15,27 @@ export class AppComponent implements OnInit {
     public title = 'Finance Manager';
 
     constructor(
-        private readonly authService: AuthApiService,
+        private readonly authService: AuthService,
         private readonly router: Router,
         private readonly localStorage: LocalStorageService,
         private readonly userService: UserService,
     ) {}
 
     public ngOnInit(): void {
+        const userToken = this.userService.getUserToken();
+        if (userToken) {
+            this.authService
+                .checkSessionValidity(userToken)
+                .subscribe((isSessionValid) => {
+                    if (!isSessionValid) {
+                        this.localStorage.removeItem(
+                            LocalStorageKeys.UserToken,
+                        );
+                        this.localStorage.removeItem(LocalStorageKeys.UserId);
+                    }
+                });
+        }
+
         if (!this.userService.getUserID()) {
             this.router.navigate(['/login']);
         } else {
@@ -39,8 +54,8 @@ export class AppComponent implements OnInit {
 
         this.authService.logout(userToken).subscribe(() => {
             this.userService.setCurrentUser(null);
-            this.localStorage.removeItem(LocalStorageKeys.userId);
-            this.localStorage.removeItem(LocalStorageKeys.userToken);
+            this.localStorage.removeItem(LocalStorageKeys.UserToken);
+            this.localStorage.removeItem(LocalStorageKeys.UserId);
             this.router.navigate(['/login']);
         });
     }

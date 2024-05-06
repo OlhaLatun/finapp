@@ -26,14 +26,22 @@ export class AuthService {
             tap((response) => {
                 this.userService.setCurrentUser(response);
                 this.localStorageService.setItem(
-                    LocalStorageKeys.userToken,
+                    LocalStorageKeys.UserToken,
                     response['user-token'],
                 );
                 this.localStorageService.setItem(
-                    LocalStorageKeys.userId,
+                    LocalStorageKeys.UserId,
                     response.objectId,
                 );
             }),
         );
+    }
+
+    public checkSessionValidity(userToken: string): Observable<any> {
+        return this.authApiService.checkSessionValidity(userToken);
+    }
+
+    public logout(userToken: string): Observable<any> {
+        return this.authApiService.logout(userToken);
     }
 }

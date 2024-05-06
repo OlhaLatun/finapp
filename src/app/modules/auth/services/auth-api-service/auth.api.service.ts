@@ -30,4 +30,10 @@ export class AuthApiService {
             headers: { 'user-token': userToken },
         });
     }
+
+    public checkSessionValidity(userToken: string): Observable<any> {
+        return this.http.get(
+            this.baseUrl + `/api/users/isvalidusertoken/${userToken}`,
+        );
+    }
 }
