@@ -1,1 +1,23 @@
-<p>wallet works!</p>
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="wallet-form">
+    <mat-form-field class="income-source">
+        <mat-label>Income source</mat-label>
+        <input
+            matInput
+            placeholder="Enter your income source"
+            formControlName="incomeSource"
+        />
+    </mat-form-field>
+
+    <mat-form-field class="expense-category">
+        <mat-label>Expense category</mat-label>
+        <input
+            matInput
+            placeholder="Enter your expense category"
+            formControlName="expenseCategory"
+        />
+    </mat-form-field>
+    <br />
+    <button mat-raised-button color="success" type="submit" class="save-btn">
+        SAVE
+    </button>
+</form>
