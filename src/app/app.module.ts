@@ -13,25 +13,26 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 
 import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
 import { MatInputModule } from '@angular/material/input';
 import { AuthComponent } from './modules/auth/pages/login/auth.component';
-import { AuthApiService } from './modules/auth/services/auth-api-service/auth.api.service';
 import { HttpClientModule } from '@angular/common/http';
-import { WalletComponent } from './components/wallet/wallet.component';
-import { BudgetPlannerComponent } from './components/budget-planner/budget-planner.component';
-import { AnalyticsComponent } from './components/analytics/analytics.component';
-import { UserService } from './services/user.service';
-import { LocalStorageService } from './services/local-storage.service';
-import { UsersApiService } from './services/users.api.service';
-import { NavigationComponent } from './components/navigation/navigation.component';
 import { MatDialogModule } from '@angular/material/dialog';
-import { SettingsDialogComponent } from './components/settings-dialog/settings-dialog.component';
 import {
     MAT_RADIO_DEFAULT_OPTIONS,
     MatRadioModule,
 } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
+import { AppComponent } from './app.component';
+import { WalletComponent } from './components/wallet/wallet.component';
+import { BudgetPlannerComponent } from './components/budget-planner/budget-planner.component';
+import { AnalyticsComponent } from './components/analytics/analytics.component';
+import { NavigationComponent } from './components/navigation/navigation.component';
+import { SettingsDialogComponent } from './components/settings-dialog/settings-dialog.component';
+import { AuthApiService } from './modules/auth/services/auth-api-service/auth.api.service';
+import { UserService } from './services/user.service';
+import { LocalStorageService } from './services/local-storage.service';
+import { UsersApiService } from './services/users.api.service';
 import { AuthService } from './modules/auth/services/auth-service/auth.service';
 import { AuthGuard } from './modules/auth/services/auth-guard/auth-guard.service';
 
@@ -62,6 +63,7 @@ import { AuthGuard } from './modules/auth/services/auth-guard/auth-guard.service
         MatDialogModule,
         MatRadioModule,
         FormsModule,
+        MatTableModule,
     ],
     providers: [
         {

@@ -10,6 +10,8 @@ import { DBName, DBStoreName } from '../../enums/indexedDB.enum';
 })
 export class WalletComponent implements OnInit {
     public form: FormGroup;
+    public expenseCategories = [];
+    displayedColumns: string[] = ['position', 'expenses', 'delete'];
     constructor(
         private readonly formBuilder: FormBuilder,
         private readonly indexedDBService: IndexedDbService,
@@ -21,6 +23,7 @@ export class WalletComponent implements OnInit {
             expenseCategory: [{ value: '', disabled: false }],
         });
         this.initDatabase();
+        this.setExpenseCategories();
     }
 
     public onSubmit(): void {
@@ -31,9 +34,11 @@ export class WalletComponent implements OnInit {
         }
 
         if (this.form.get('expenseCategory').value) {
-            this.indexedDBService.setExpenseCategory(
-                this.form.get('expenseCategory').value,
-            );
+            this.indexedDBService.setExpenseCategory({
+                name: this.form.get('expenseCategory').value,
+                id: Math.floor(Math.random() * 1000),
+            });
+            this.setExpenseCategories();
         }
 
         this.form.reset();
@@ -51,9 +56,23 @@ export class WalletComponent implements OnInit {
 
             if (!db.objectStoreNames.contains(DBStoreName.ExpenseCategory)) {
                 db.createObjectStore(DBStoreName.ExpenseCategory, {
-                    autoIncrement: true,
+                    keyPath: 'id',
                 });
             }
         };
+    }
+
+    public setExpenseCategories(): void {
+        this.indexedDBService
+            .getAllItemsFromStore(DBStoreName.ExpenseCategory)
+            .then((data) => (this.expenseCategories = data));
+    }
+
+    public deleteItem(index: number): void {
+        this.indexedDBService.deleteItemFormStore(
+            DBStoreName.ExpenseCategory,
+            index,
+        );
+        this.setExpenseCategories();
     }
 }
