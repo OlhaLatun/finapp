@@ -13,7 +13,10 @@ export class IndexedDbService {
         return window.indexedDB.open(dbName);
     }
 
-    public setIncomeSource(incomeSource: string): void {
+    public setIncomeSource(incomeSource: {
+        name: string;
+        amount: number;
+    }): void {
         let database: IDBDatabase;
 
         const request = this.open(DBName.Wallet);
@@ -40,7 +43,7 @@ export class IndexedDbService {
             database
                 .transaction([DBStoreName.ExpenseCategory], 'readwrite')
                 .objectStore(DBStoreName.ExpenseCategory)
-                .add(expenseCategory);
+                .add({ ...expenseCategory, amountSpent: 0 });
         };
     }
 

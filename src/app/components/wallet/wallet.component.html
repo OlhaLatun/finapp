@@ -1,48 +1,101 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()" class="wallet-form">
-    <mat-form-field class="income-source">
-        <mat-label>Income source</mat-label>
-        <input
-            matInput
-            placeholder="Enter your income source"
-            formControlName="incomeSource"
-        />
-    </mat-form-field>
+<aside>
+    <div class="income-source-container">
+        <form
+            [formGroup]="incomeSourceform"
+            (ngSubmit)="onIncomeSourceSubmit()"
+            class="wallet-form"
+        >
+            <mat-form-field class="income-source-input">
+                <mat-label>Income source</mat-label>
+                <input
+                    matInput
+                    placeholder="Enter your income source"
+                    formControlName="incomeSource"
+                />
+            </mat-form-field>
+            <mat-form-field class="income-amount-input">
+                <mat-label>Income amount</mat-label>
+                <input
+                    matInput
+                    placeholder="Enter amount"
+                    formControlName="incomeAmount"
+                />
+                <span matTextSuffix>{{ currency }}</span>
+            </mat-form-field>
 
-    <mat-form-field class="expense-category">
-        <mat-label>Expense category</mat-label>
-        <input
-            matInput
-            placeholder="Enter your expense category"
-            formControlName="expenseCategory"
-        />
-    </mat-form-field>
-    <br />
-    <button mat-raised-button color="success" type="submit" class="save-btn">
-        SAVE
-    </button>
-</form>
-<table mat-table [dataSource]="expenseCategories">
-    <ng-container matColumnDef="position">
-        <th mat-header-cell *matHeaderCellDef>No.</th>
-        <td mat-cell *matCellDef="let element; let i = index">{{ i + 1 }}</td>
-    </ng-container>
+            <button
+                mat-raised-button
+                color="success"
+                type="submit"
+                class="add-btn"
+            >
+                Add
+            </button>
+        </form>
+        <div class="income-source" cdkDropList cdkDropListConnectedTo="table">
+            <ng-container *ngFor="let source of incomeSource">
+                <div class="income-source-item" cdkDrag>
+                    <div class="income-source-item_name">
+                        <mat-icon cdkDragHandle>drag_indicator</mat-icon>
+                        <span> {{ source.name }} </span>
+                    </div>
+                    <div
+                        class="income-source-placeholder"
+                        *cdkDragPlaceholder
+                    ></div>
+                    <div class="income-source-item_name">
+                        {{ source.amount }}
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</aside>
 
-    <ng-container matColumnDef="expenses">
-        <th mat-header-cell *matHeaderCellDef>Expenses</th>
-        <td mat-cell *matCellDef="let element">{{ element.name }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="delete">
-        <th mat-header-cell *matHeaderCellDef aria-label="row actions">
-            &nbsp;
-        </th>
-        <td mat-cell *matCellDef="let element">
-            <span (click)="deleteItem(element.id)">
-                <mat-icon>delete_outline</mat-icon>
-            </span>
-        </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-</table>
+<main>
+    <form
+        [formGroup]="expenseCategoryform"
+        (ngSubmit)="onExpenseCategorySubmit()"
+        class="wallet-form"
+    >
+        <mat-form-field class="expense-category-input">
+            <mat-label>Expense category</mat-label>
+            <input
+                matInput
+                placeholder="Enter your expense category"
+                formControlName="expenseCategory"
+                value="accent"
+            />
+        </mat-form-field>
+        <button mat-raised-button color="success" type="submit" class="add-btn">
+            Add
+        </button>
+    </form>
+    <div cdkDropList (cdkDropListDropped)="drop($event)" id="table">
+        <div class="expense-category-row header-row">
+            <div class="expense-category-col">N</div>
+            <div class="expense-category-col">Expense</div>
+            <div class="expense-category-col">Spent</div>
+            <div class="expense-category-col">
+                <mat-icon style="visibility: hidden">delete_outline</mat-icon>
+            </div>
+        </div>
+        <ng-container *ngFor="let category of expenseCategories; let i = index">
+            <div [id]="category.id" class="expense-category-row">
+                <div class="expense-category-col">{{ i + 1 }}</div>
+                <div class="expense-category-col">
+                    {{ category.name }}
+                </div>
+                <div class="expense-category-col">
+                    {{ category.amountSpent }}
+                </div>
+                <div
+                    class="expense-category-col"
+                    (click)="deleteItem(category.id)"
+                >
+                    <mat-icon>delete_outline</mat-icon>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</main>

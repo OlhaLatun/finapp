@@ -23,6 +23,7 @@ import {
 } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { AppComponent } from './app.component';
 import { WalletComponent } from './components/wallet/wallet.component';
 import { BudgetPlannerComponent } from './components/budget-planner/budget-planner.component';
@@ -64,12 +65,13 @@ import { AuthGuard } from './modules/auth/services/auth-guard/auth-guard.service
         MatRadioModule,
         FormsModule,
         MatTableModule,
+        DragDropModule,
     ],
     providers: [
-        {
-            provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
-            useValue: { appearance: 'outline' },
-        },
+        // {
+        //     provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
+        //     useValue: { appearance: 'outline' },
+        // },
         {
             provide: MAT_RADIO_DEFAULT_OPTIONS,
             useValue: { color: 'primary' },

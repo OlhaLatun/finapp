@@ -1,12 +1,107 @@
+aside, main {
+  display: block;
+  float: left;
+}
+
+aside {
+  width: 35vw;
+  height: calc(100vh - 50px);
+  background-color: #fafafa;
+}
+
+main {
+  width: calc(65vw - 50px);
+  padding: 0 24px;
+}
+
+.income-source-container {
+
+  .income-source {
+    padding: 20px;
+    .income-source-item {
+      color: darkslateblue;
+      background-color: #eef7ff;
+      border: 2px solid cornflowerblue;
+      font-size: 24px;
+      padding: 10px;
+      margin: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      &_name {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+
+        mat-icon {
+          color: cornflowerblue;
+          margin-right: 10px;
+        }
+      }
+
+
+        .income-source-placeholder {
+          background: #ccc;
+          border: dotted 3px #999;
+          min-height: 60px;
+          transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+        }
+
+    }
+  }
+}
+
 .wallet-form {
   padding: 24px;
 
-  .income-source, .expense-category {
+  .income-source-input, .expense-category-input, .income-amount-input {
+
+    width: 30vw;
+    margin-right: 20px;
+  }
+
+   .expense-category {
     width: 50vw;
+    margin-right: 20px;
   }
 }
 
 .mat-column-position {
   width: 30px;
   border-right: 1px solid black;
+}
+
+.expense-category-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: darkslateblue;
+  background-color: #eef7ff;
+  border: 2px solid cornflowerblue;
+
+  .expense-category-col {
+    width: 30vw;
+    border-right: 2px solid cornflowerblue;
+    padding: 10px;
+    margin-right: 10px;
+
+    &:first-child {
+      width: 30px;
+      text-align: center;
+    }
+
+    &:last-child {
+      flex: 1;
+      justify-self: right;
+      text-align: right;
+      border-right: none;
+    }
+  }
+}
+
+.header-row {
+  font-weight: 500;
+  text-transform: uppercase;
+  background-color: lightskyblue;
 }
