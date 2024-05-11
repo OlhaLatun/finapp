@@ -8,6 +8,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { IncomeSource } from '../../interfaces/income-source.interface';
 import { ExpenseCategory } from '../../interfaces/expense-category.interface';
 import { InputDialog } from '../input-dialog/input-dialog.component';
+import { WalletService } from '../../services/wallet/wallet.service';
 
 @Component({
     selector: 'app-wallet',
@@ -26,6 +27,7 @@ export class WalletComponent implements OnInit {
         private readonly indexedDBService: IndexedDbService,
         private readonly localStorage: LocalStorageService,
         private readonly dialog: MatDialog,
+        private readonly walletService: WalletService,
     ) {}
 
     ngOnInit(): void {
@@ -34,7 +36,7 @@ export class WalletComponent implements OnInit {
         ).currency;
 
         this.initForms();
-        this.initDatabase();
+        this.walletService.initWalletDatabase();
         this.getExpenseCategories();
         this.getIncomeSource();
     }
@@ -81,11 +83,17 @@ export class WalletComponent implements OnInit {
         });
 
         ref.afterClosed().subscribe((data) => {
-            this.updateExpenseAmount(+categoryElem.id, +data?.inputValue);
-            this.updateIncomeSourceAmount(
+            this.walletService.updateExpenseAmount(
+                +categoryElem.id,
+                +data?.inputValue,
+            );
+            this.walletService.updateIncomeSourceAmount(
                 +incomeSourceElem.nativeElement.id,
                 +data?.inputValue,
             );
+
+            this.getExpenseCategories();
+            this.getIncomeSource();
         });
     }
 
@@ -107,24 +115,6 @@ export class WalletComponent implements OnInit {
         });
     }
 
-    private initDatabase(): void {
-        const request = this.indexedDBService.init(DBName.Wallet, 1);
-        request.onupgradeneeded = (event) => {
-            const db = (event.target as IDBOpenDBRequest).result;
-            if (!db.objectStoreNames.contains(DBStoreName.IncomeSource)) {
-                db.createObjectStore(DBStoreName.IncomeSource, {
-                    keyPath: 'id',
-                });
-            }
-
-            if (!db.objectStoreNames.contains(DBStoreName.ExpenseCategory)) {
-                db.createObjectStore(DBStoreName.ExpenseCategory, {
-                    keyPath: 'id',
-                });
-            }
-        };
-    }
-
     public getExpenseCategories(): void {
         this.indexedDBService
             .getAllItemsFromStore(DBStoreName.ExpenseCategory)
@@ -137,29 +127,7 @@ export class WalletComponent implements OnInit {
             .then((data) => (this.incomeSource = data));
     }
 
-    public updateExpenseAmount(itemId: number, value: number): void {
-        this.indexedDBService.updateItem(
-            DBStoreName.ExpenseCategory,
-            itemId,
-            value,
-        );
-        this.getExpenseCategories();
-    }
-
-    public updateIncomeSourceAmount(itemId: number, value: number): void {
-        this.indexedDBService.updateItem(
-            DBStoreName.IncomeSource,
-            itemId,
-            value,
-        );
-        this.getIncomeSource();
-    }
-
-    public deleteItem(index: number): void {
-        this.indexedDBService.deleteItemFormStore(
-            DBStoreName.ExpenseCategory,
-            index,
-        );
-        this.getExpenseCategories();
+    public deleteItem(itemId: number): void {
+        this.walletService.deleteItem(itemId);
     }
 }
