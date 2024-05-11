@@ -8,13 +8,13 @@ import { IncomeSource } from '../../interfaces/income-source.interface';
     templateUrl: './input-dialog.component.html',
     styleUrls: ['./input-dialog.component.scss'],
 })
-export class InputDialog implements OnInit {
+export class InputDialogComponent implements OnInit {
     public dialogForm: FormGroup;
     public shouldShowValidationMessage: boolean = false;
 
     constructor(
         private readonly formBuilder: FormBuilder,
-        public dialogRef: MatDialogRef<InputDialog>,
+        public dialogRef: MatDialogRef<InputDialogComponent>,
         @Optional()
         @Inject(MAT_DIALOG_DATA)
         public data: {

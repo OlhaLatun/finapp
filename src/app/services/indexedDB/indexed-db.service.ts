@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { DBName, DBStoreName } from '../../enums/indexedDB.enum';
 import { ExpenseCategory } from '../../interfaces/expense-category.interface';
 import { IncomeSource } from '../../interfaces/income-source.interface';
-import { resolve } from '@angular/compiler-cli';
 
 @Injectable({
     providedIn: 'root',
@@ -78,7 +77,7 @@ export class IndexedDbService {
     public getItemById(
         storeName: DBStoreName,
         itemId: number,
-    ): Promise<IncomeSource> {
+    ): Promise<IncomeSource | ExpenseCategory> {
         return new Promise((resolve) => {
             const request = this.open(DBName.Wallet);
             request.onsuccess = (event) => {
@@ -111,10 +110,10 @@ export class IndexedDbService {
             itemRequest.onsuccess = () => {
                 const item = itemRequest.result;
 
-                if ('amountSpent' in itemRequest.result) {
-                    item.amountSpent = item.amountSpent + value;
+                if (storeName === DBStoreName.ExpenseCategory) {
+                    item.amount = item.amount + value;
                 } else {
-                    item.amount = item.amount - value;
+                    item.amount = value;
                 }
                 objStore.put(item);
             };

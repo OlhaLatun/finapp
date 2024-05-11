@@ -35,11 +35,26 @@ export class WalletService {
         );
     }
 
-    public updateIncomeSourceAmount(itemId: number, value: number): void {
+    public async updateIncomeSourceAmount(
+        itemId: number,
+        value: number,
+        deletion?: boolean,
+    ): Promise<void> {
+        let valueToUpdate: number;
+        const incomeSource: IncomeSource = await this.getIncomeSourceById(
+            itemId,
+        );
+
+        if (deletion) {
+            valueToUpdate = incomeSource.amount + value;
+        } else {
+            valueToUpdate = incomeSource.amount - value;
+        }
+
         this.indexedDBService.updateItem(
             DBStoreName.IncomeSource,
             itemId,
-            value,
+            valueToUpdate,
         );
     }
 
