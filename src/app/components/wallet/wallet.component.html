@@ -1,7 +1,7 @@
 <aside>
     <div class="income-source-container">
         <form
-            [formGroup]="incomeSourceform"
+            [formGroup]="incomeSourceForm"
             (ngSubmit)="onIncomeSourceSubmit()"
             class="wallet-form"
         >
@@ -54,7 +54,7 @@
 
 <main>
     <form
-        [formGroup]="expenseCategoryform"
+        [formGroup]="expenseCategoryForm"
         (ngSubmit)="onExpenseCategorySubmit()"
         class="wallet-form"
     >
@@ -71,7 +71,7 @@
             Add
         </button>
     </form>
-    <div cdkDropList (cdkDropListDropped)="drop($event)" id="table">
+    <div cdkDropList (cdkDropListDropped)="onDropEvent($event)" id="table">
         <div class="expense-category-row header-row">
             <div class="expense-category-col">N</div>
             <div class="expense-category-col">Expense</div>
@@ -81,7 +81,11 @@
             </div>
         </div>
         <ng-container *ngFor="let category of expenseCategories; let i = index">
-            <div [id]="category.id" class="expense-category-row">
+            <div
+                [id]="category.id"
+                [attr.data-category]="category.name"
+                class="expense-category-row"
+            >
                 <div class="expense-category-col">{{ i + 1 }}</div>
                 <div class="expense-category-col">
                     {{ category.name }}

@@ -1,0 +1,22 @@
+<div class="input-dialog-container">
+    <p class="input-dialog-header">Spent on {{ data.category }}</p>
+    <form
+        class="input-dialog-form"
+        [formGroup]="dialogForm"
+        (ngSubmit)="onDialogFormSubmit()"
+    >
+        <mat-form-field class="income-amount-input">
+            <mat-label>Amount spent</mat-label>
+            <input
+                matInput
+                placeholder="Amount spent"
+                formControlName="amountSpent"
+            />
+            <span matTextSuffix>{{ data.currency }}</span>
+        </mat-form-field>
+        <br />
+        <button mat-raised-button color="success" type="submit" class="add-btn">
+            Save
+        </button>
+    </form>
+</div>

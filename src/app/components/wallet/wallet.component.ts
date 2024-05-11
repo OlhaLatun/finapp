@@ -4,6 +4,10 @@ import { IndexedDbService } from '../../services/indexedDB/indexed-db.service';
 import { DBName, DBStoreName } from '../../enums/indexedDB.enum';
 import { LocalStorageService } from '../../services/local-storage.service';
 import { LocalStorageKeys } from '../../enums/local-storage-keys.enum';
+import { MatDialog } from '@angular/material/dialog';
+import { IncomeSource } from '../../interfaces/income-source.interface';
+import { ExpenseCategory } from '../../interfaces/expense-category.interface';
+import { InputDialog } from '../input-dialog/input-dialog.component';
 
 @Component({
     selector: 'app-wallet',
@@ -11,19 +15,17 @@ import { LocalStorageKeys } from '../../enums/local-storage-keys.enum';
     styleUrls: ['./wallet.component.scss'],
 })
 export class WalletComponent implements OnInit {
-    public incomeSourceform: FormGroup;
-    public expenseCategoryform: FormGroup;
-    public expenseCategories = [];
-    public incomeSource = [];
-    public displayedColumns = {
-        expenseCategory: ['position', 'expenses', 'spent', 'delete'],
-        incomeSource: ['position', 'source', 'amount'],
-    };
+    public incomeSourceForm: FormGroup;
+    public expenseCategoryForm: FormGroup;
+    public expenseCategories: ExpenseCategory[] = [];
+    public incomeSource: IncomeSource[] = [];
     public currency = 'USD';
+
     constructor(
         private readonly formBuilder: FormBuilder,
         private readonly indexedDBService: IndexedDbService,
         private readonly localStorage: LocalStorageService,
+        private readonly dialog: MatDialog,
     ) {}
 
     ngOnInit(): void {
@@ -39,35 +41,50 @@ export class WalletComponent implements OnInit {
 
     public onIncomeSourceSubmit(): void {
         if (
-            this.incomeSourceform.get('incomeSource').value &&
-            this.incomeSourceform.valid
+            this.incomeSourceForm.get('incomeSource').value &&
+            this.incomeSourceForm.valid
         ) {
             this.indexedDBService.setIncomeSource({
-                name: this.incomeSourceform.get('incomeSource').value,
-                amount: +this.incomeSourceform.get('incomeAmount').value,
+                name: this.incomeSourceForm.get('incomeSource').value,
+                amount: +this.incomeSourceForm.get('incomeAmount').value,
             });
-            this.incomeSourceform.get('incomeSource').reset();
+            this.incomeSourceForm.get('incomeSource').reset();
             this.getIncomeSource();
         }
     }
 
     public onExpenseCategorySubmit(): void {
-        if (this.expenseCategoryform.get('expenseCategory').value) {
+        if (this.expenseCategoryForm.get('expenseCategory').value) {
             this.indexedDBService.setExpenseCategory({
-                name: this.expenseCategoryform.get('expenseCategory').value,
+                name: this.expenseCategoryForm.get('expenseCategory').value,
                 id: Math.floor(Math.random() * 1000),
+                amountSpent: 0,
             });
-            this.expenseCategoryform.get('expenseCategory').reset();
+            this.expenseCategoryForm.get('expenseCategory').reset();
             this.getExpenseCategories();
         }
     }
 
-    public drop(event) {
-        console.log(event.event.target.closest('div[id]'));
+    public onDropEvent(event): void {
+        const categoryElem = event.event.target.closest('div[id]');
+
+        const ref = this.dialog.open(InputDialog, {
+            data: {
+                currency: this.currency,
+                category: categoryElem.dataset.category,
+            },
+            disableClose: true,
+            height: '250px',
+            width: '400px',
+        });
+
+        ref.afterClosed().subscribe((data) => {
+            this.updateExpenseAmount(+categoryElem.id, +data?.inputValue);
+        });
     }
 
     private initForms(): void {
-        this.incomeSourceform = this.formBuilder.group({
+        this.incomeSourceForm = this.formBuilder.group({
             incomeSource: [{ value: '', disabled: false }],
             incomeAmount: [
                 { value: '', disabled: false },
@@ -79,7 +96,7 @@ export class WalletComponent implements OnInit {
             ],
         });
 
-        this.expenseCategoryform = this.formBuilder.group({
+        this.expenseCategoryForm = this.formBuilder.group({
             expenseCategory: [{ value: '', disabled: false }],
         });
     }
@@ -114,6 +131,15 @@ export class WalletComponent implements OnInit {
             .then((data) => (this.incomeSource = data));
     }
 
+    public updateExpenseAmount(itemId: number, value: number): void {
+        this.indexedDBService.updateItem(
+            DBStoreName.ExpenseCategory,
+            itemId,
+            value,
+        );
+        this.getExpenseCategories();
+    }
+
     public deleteItem(index: number): void {
         this.indexedDBService.deleteItemFormStore(
             DBStoreName.ExpenseCategory,
@@ -121,6 +147,4 @@ export class WalletComponent implements OnInit {
         );
         this.getExpenseCategories();
     }
-
-    protected readonly event = event;
 }
