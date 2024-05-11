@@ -2,16 +2,17 @@ import { Injectable } from '@angular/core';
 import { DBName, DBStoreName } from '../../enums/indexedDB.enum';
 import { ExpenseCategory } from '../../interfaces/expense-category.interface';
 import { IncomeSource } from '../../interfaces/income-source.interface';
+import { resolve } from '@angular/compiler-cli';
 
 @Injectable({
     providedIn: 'root',
 })
 export class IndexedDbService {
-    public init(dbName: string, version: number): IDBOpenDBRequest {
+    public init(dbName: DBName, version: number): IDBOpenDBRequest {
         return window.indexedDB.open(dbName, version);
     }
 
-    public open(dbName: string): IDBOpenDBRequest {
+    public open(dbName: DBName): IDBOpenDBRequest {
         return window.indexedDB.open(dbName);
     }
 
@@ -43,7 +44,7 @@ export class IndexedDbService {
         };
     }
 
-    public getAllItemsFromStore(storeName: string): Promise<[]> {
+    public getAllItemsFromStore(storeName: DBStoreName): Promise<[]> {
         return new Promise((resolve) => {
             const request = this.open(DBName.Wallet);
             request.onsuccess = (event) => {
@@ -62,7 +63,7 @@ export class IndexedDbService {
         });
     }
 
-    public deleteItemFormStore(storeName: string, index: number): void {
+    public deleteItemFormStore(storeName: DBStoreName, id: number): void {
         const request = this.open(DBName.Wallet);
         request.onsuccess = (event) => {
             const database = (event.target as IDBOpenDBRequest).result;
@@ -70,11 +71,33 @@ export class IndexedDbService {
             database
                 .transaction([storeName], 'readwrite')
                 .objectStore(storeName)
-                .delete(index);
+                .delete(id);
         };
     }
 
-    public updateItem(storeName: string, itemId: number, value: number): void {
+    public getItemById(
+        storeName: DBStoreName,
+        itemId: number,
+    ): Promise<IncomeSource> {
+        return new Promise((resolve) => {
+            const request = this.open(DBName.Wallet);
+            request.onsuccess = (event) => {
+                const database = (event.target as IDBOpenDBRequest).result;
+                const item = database
+                    .transaction(storeName, 'readonly')
+                    .objectStore(storeName)
+                    .get(itemId);
+
+                item.onsuccess = () => resolve(item.result);
+            };
+        });
+    }
+
+    public updateItem(
+        storeName: DBStoreName,
+        itemId: number,
+        value: number,
+    ): void {
         const request = this.open(DBName.Wallet);
         request.onsuccess = (event) => {
             const database = (event.target as IDBOpenDBRequest).result;

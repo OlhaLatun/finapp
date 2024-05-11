@@ -1,13 +1,7 @@
-import {
-    Component,
-    EventEmitter,
-    Inject,
-    OnInit,
-    Optional,
-    Output,
-} from '@angular/core';
+import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { IncomeSource } from '../../interfaces/income-source.interface';
 
 @Component({
     selector: 'app-input-dialog',
@@ -16,14 +10,18 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 })
 export class InputDialog implements OnInit {
     public dialogForm: FormGroup;
-    @Output() public onInputDialogSubmit: EventEmitter<number>;
+    public shouldShowValidationMessage: boolean = false;
 
     constructor(
         private readonly formBuilder: FormBuilder,
         public dialogRef: MatDialogRef<InputDialog>,
         @Optional()
         @Inject(MAT_DIALOG_DATA)
-        public data: { currency: string; category: string },
+        public data: {
+            currency: string;
+            category: string;
+            incomeSource: IncomeSource;
+        },
     ) {}
 
     public ngOnInit() {
@@ -41,8 +39,20 @@ export class InputDialog implements OnInit {
 
     public onDialogFormSubmit(): void {
         const value = this.dialogForm.get('amountSpent').value;
-        if (this.dialogForm.valid && !!value) {
+        this.shouldShowValidationMessage =
+            this.data.incomeSource.amount <= 0 &&
+            +value > this.data.incomeSource.amount;
+        if (
+            this.dialogForm.valid &&
+            !!value &&
+            !this.shouldShowValidationMessage
+        ) {
             this.dialogRef.close({ inputValue: value });
         }
+    }
+
+    public closeDialog(event): void {
+        event.preventDefault();
+        this.dialogRef.close();
     }
 }

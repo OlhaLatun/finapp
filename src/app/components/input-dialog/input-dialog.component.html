@@ -1,5 +1,10 @@
 <div class="input-dialog-container">
-    <p class="input-dialog-header">Spent on {{ data.category }}</p>
+    <div class="input-dialog-header">
+        <span>Spent on {{ data.category }}</span>
+        <button (click)="closeDialog($event)">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
     <form
         class="input-dialog-form"
         [formGroup]="dialogForm"
@@ -14,6 +19,14 @@
             />
             <span matTextSuffix>{{ data.currency }}</span>
         </mat-form-field>
+        <div class="warn-message" *ngIf="shouldShowValidationMessage">
+            <mat-icon>error_outline</mat-icon>
+            <span>
+                Not enough funds. <br />
+                You've used all money from
+                {{ data.incomeSource.name }}
+            </span>
+        </div>
         <br />
         <button mat-raised-button color="success" type="submit" class="add-btn">
             Save

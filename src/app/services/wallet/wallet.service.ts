@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { IndexedDbService } from '../indexedDB/indexed-db.service';
 import { DBName, DBStoreName } from '../../enums/indexedDB.enum';
+import { IncomeSource } from '../../interfaces/income-source.interface';
 
 @Injectable({
     providedIn: 'root',
@@ -42,10 +43,17 @@ export class WalletService {
         );
     }
 
-    public deleteItem(index: number): void {
+    public deleteItem(id: number): void {
         this.indexedDBService.deleteItemFormStore(
             DBStoreName.ExpenseCategory,
-            index,
+            id,
+        );
+    }
+
+    public getIncomeSourceById(itemId: number): Promise<IncomeSource> {
+        return this.indexedDBService.getItemById(
+            DBStoreName.IncomeSource,
+            itemId,
         );
     }
 }
