@@ -86,10 +86,13 @@ export class IndexedDbService {
             const itemRequest = objStore.get(itemId);
 
             itemRequest.onsuccess = () => {
-                const item: ExpenseCategory = itemRequest.result;
+                const item = itemRequest.result;
 
-                item.amountSpent = item.amountSpent + value;
-
+                if ('amountSpent' in itemRequest.result) {
+                    item.amountSpent = item.amountSpent + value;
+                } else {
+                    item.amount = item.amount - value;
+                }
                 objStore.put(item);
             };
         };
