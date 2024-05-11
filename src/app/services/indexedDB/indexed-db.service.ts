@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { DBName, DBStoreName } from '../../enums/indexedDB.enum';
+import { ExpenseCategory } from '../../interfaces/expense-category.interface';
+import { IncomeSource } from '../../interfaces/income-source.interface';
 
 @Injectable({
     providedIn: 'root',
@@ -13,10 +15,7 @@ export class IndexedDbService {
         return window.indexedDB.open(dbName);
     }
 
-    public setIncomeSource(incomeSource: {
-        name: string;
-        amount: number;
-    }): void {
+    public setIncomeSource(incomeSource: IncomeSource): void {
         let database: IDBDatabase;
 
         const request = this.open(DBName.Wallet);
@@ -30,10 +29,7 @@ export class IndexedDbService {
         };
     }
 
-    public setExpenseCategory(expenseCategory: {
-        name: string;
-        id: number;
-    }): void {
+    public setExpenseCategory(expenseCategory: ExpenseCategory): void {
         let database: IDBDatabase;
 
         const request = this.open(DBName.Wallet);
@@ -43,7 +39,7 @@ export class IndexedDbService {
             database
                 .transaction([DBStoreName.ExpenseCategory], 'readwrite')
                 .objectStore(DBStoreName.ExpenseCategory)
-                .add({ ...expenseCategory, amountSpent: 0 });
+                .add(expenseCategory);
         };
     }
 
@@ -71,13 +67,30 @@ export class IndexedDbService {
         request.onsuccess = (event) => {
             const database = (event.target as IDBOpenDBRequest).result;
 
-            const getCategories = database
+            database
                 .transaction([storeName], 'readwrite')
                 .objectStore(storeName)
                 .delete(index);
+        };
+    }
 
-            getCategories.onsuccess = (event) => {
-                console.log(event);
+    public updateItem(storeName: string, itemId: number, value: number): void {
+        const request = this.open(DBName.Wallet);
+        request.onsuccess = (event) => {
+            const database = (event.target as IDBOpenDBRequest).result;
+
+            const objStore = database
+                .transaction(storeName, 'readwrite')
+                .objectStore(storeName);
+
+            const itemRequest = objStore.get(itemId);
+
+            itemRequest.onsuccess = () => {
+                const item: ExpenseCategory = itemRequest.result;
+
+                item.amountSpent = item.amountSpent + value;
+
+                objStore.put(item);
             };
         };
     }
