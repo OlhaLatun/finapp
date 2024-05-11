@@ -33,7 +33,8 @@ import { LocalStorageService } from './services/local-storage.service';
 import { UsersApiService } from './services/users.api.service';
 import { AuthService } from './modules/auth/services/auth-service/auth.service';
 import { AuthGuard } from './modules/auth/services/auth-guard/auth-guard.service';
-import { InputDialog } from './components/input-dialog/input-dialog.component';
+import { InputDialogComponent } from './components/input-dialog/input-dialog.component';
+import { ConfirmationPopupComponent } from './components/confirmation-popup/confirmation-popup.component';
 
 @NgModule({
     declarations: [
@@ -44,7 +45,8 @@ import { InputDialog } from './components/input-dialog/input-dialog.component';
         AnalyticsComponent,
         NavigationComponent,
         SettingsDialogComponent,
-        InputDialog,
+        InputDialogComponent,
+        ConfirmationPopupComponent,
     ],
     imports: [
         MatFormFieldModule,

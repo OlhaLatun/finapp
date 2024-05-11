@@ -44,7 +44,7 @@
                         *cdkDragPlaceholder
                     ></div>
                     <div class="income-source-item_name">
-                        {{ source.amount }}
+                        {{ source.amount.toFixed(2) }}
                     </div>
                 </div>
             </ng-container>
@@ -71,6 +71,9 @@
             Add
         </button>
     </form>
+    <div class="current-month">
+        {{ getDate() }}
+    </div>
     <div cdkDropList (cdkDropListDropped)="onDropEvent($event)" id="table">
         <div class="expense-category-row header-row">
             <div class="expense-category-col">N</div>
@@ -91,7 +94,7 @@
                     {{ category.name }}
                 </div>
                 <div class="expense-category-col">
-                    {{ category.amountSpent }}
+                    {{ category.amount.toFixed(2) }}
                 </div>
                 <div
                     class="expense-category-col"

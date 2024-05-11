@@ -7,11 +7,11 @@ import { IncomeSource } from '../../interfaces/income-source.interface';
     providedIn: 'root',
 })
 export class IndexedDbService {
-    public init(dbName: string, version: number): IDBOpenDBRequest {
+    public init(dbName: DBName, version: number): IDBOpenDBRequest {
         return window.indexedDB.open(dbName, version);
     }
 
-    public open(dbName: string): IDBOpenDBRequest {
+    public open(dbName: DBName): IDBOpenDBRequest {
         return window.indexedDB.open(dbName);
     }
 
@@ -43,7 +43,7 @@ export class IndexedDbService {
         };
     }
 
-    public getAllItemsFromStore(storeName: string): Promise<[]> {
+    public getAllItemsFromStore(storeName: DBStoreName): Promise<[]> {
         return new Promise((resolve) => {
             const request = this.open(DBName.Wallet);
             request.onsuccess = (event) => {
@@ -62,7 +62,7 @@ export class IndexedDbService {
         });
     }
 
-    public deleteItemFormStore(storeName: string, index: number): void {
+    public deleteItemFormStore(storeName: DBStoreName, id: number): void {
         const request = this.open(DBName.Wallet);
         request.onsuccess = (event) => {
             const database = (event.target as IDBOpenDBRequest).result;
@@ -70,11 +70,33 @@ export class IndexedDbService {
             database
                 .transaction([storeName], 'readwrite')
                 .objectStore(storeName)
-                .delete(index);
+                .delete(id);
         };
     }
 
-    public updateItem(storeName: string, itemId: number, value: number): void {
+    public getItemById(
+        storeName: DBStoreName,
+        itemId: number,
+    ): Promise<IncomeSource | ExpenseCategory> {
+        return new Promise((resolve) => {
+            const request = this.open(DBName.Wallet);
+            request.onsuccess = (event) => {
+                const database = (event.target as IDBOpenDBRequest).result;
+                const item = database
+                    .transaction(storeName, 'readonly')
+                    .objectStore(storeName)
+                    .get(itemId);
+
+                item.onsuccess = () => resolve(item.result);
+            };
+        });
+    }
+
+    public updateItem(
+        storeName: DBStoreName,
+        itemId: number,
+        value: number,
+    ): void {
         const request = this.open(DBName.Wallet);
         request.onsuccess = (event) => {
             const database = (event.target as IDBOpenDBRequest).result;
@@ -88,10 +110,10 @@ export class IndexedDbService {
             itemRequest.onsuccess = () => {
                 const item = itemRequest.result;
 
-                if ('amountSpent' in itemRequest.result) {
-                    item.amountSpent = item.amountSpent + value;
+                if (storeName === DBStoreName.ExpenseCategory) {
+                    item.amount = item.amount + value;
                 } else {
-                    item.amount = item.amount - value;
+                    item.amount = value;
                 }
                 objStore.put(item);
             };

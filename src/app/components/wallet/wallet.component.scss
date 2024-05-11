@@ -12,6 +12,11 @@ aside {
 main {
   width: calc(60vw - 50px);
   padding: 0 24px;
+
+  .current-month {
+    font-size: 24px;
+    margin: 20px 0;
+  }
 }
 
 .income-source-container {

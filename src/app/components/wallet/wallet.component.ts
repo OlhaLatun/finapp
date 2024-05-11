@@ -1,13 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { IndexedDbService } from '../../services/indexedDB/indexed-db.service';
-import { DBName, DBStoreName } from '../../enums/indexedDB.enum';
+import { DBStoreName } from '../../enums/indexedDB.enum';
 import { LocalStorageService } from '../../services/local-storage.service';
 import { LocalStorageKeys } from '../../enums/local-storage-keys.enum';
 import { MatDialog } from '@angular/material/dialog';
 import { IncomeSource } from '../../interfaces/income-source.interface';
 import { ExpenseCategory } from '../../interfaces/expense-category.interface';
-import { InputDialog } from '../input-dialog/input-dialog.component';
+import { InputDialogComponent } from '../input-dialog/input-dialog.component';
+import { WalletService } from '../../services/wallet/wallet.service';
+import { getCurrentMonthAndYear } from '../../utils/utils';
+import { ConfirmationPopupComponent } from '../confirmation-popup/confirmation-popup.component';
 
 @Component({
     selector: 'app-wallet',
@@ -20,13 +23,19 @@ export class WalletComponent implements OnInit {
     public expenseCategories: ExpenseCategory[] = [];
     public incomeSource: IncomeSource[] = [];
     public currency = 'USD';
+    @ViewChild('confirmationPopup') public confirmationPopup: TemplateRef<any>;
 
     constructor(
         private readonly formBuilder: FormBuilder,
         private readonly indexedDBService: IndexedDbService,
         private readonly localStorage: LocalStorageService,
         private readonly dialog: MatDialog,
+        private readonly walletService: WalletService,
     ) {}
+
+    public getDate(): string {
+        return getCurrentMonthAndYear();
+    }
 
     ngOnInit(): void {
         this.currency = this.localStorage.getItem(
@@ -34,7 +43,7 @@ export class WalletComponent implements OnInit {
         ).currency;
 
         this.initForms();
-        this.initDatabase();
+        this.walletService.initWalletDatabase();
         this.getExpenseCategories();
         this.getIncomeSource();
     }
@@ -59,33 +68,46 @@ export class WalletComponent implements OnInit {
             this.indexedDBService.setExpenseCategory({
                 name: this.expenseCategoryForm.get('expenseCategory').value,
                 id: Math.floor(Math.random() * 1000),
-                amountSpent: 0,
+                amount: 0,
             });
             this.expenseCategoryForm.get('expenseCategory').reset();
             this.getExpenseCategories();
         }
     }
 
-    public onDropEvent(event): void {
-        const incomeSourceElem = event.item.element;
+    public async onDropEvent(event): Promise<void> {
+        const incomeSourceElem = event.item.element.nativeElement;
         const categoryElem = event.event.target.closest('div[id]');
+        const incomeSource = await this.walletService.getIncomeSourceById(
+            +incomeSourceElem.id,
+        );
 
-        const ref = this.dialog.open(InputDialog, {
+        const dialogRef = this.dialog.open(InputDialogComponent, {
             data: {
                 currency: this.currency,
                 category: categoryElem.dataset.category,
+                incomeSource,
             },
             disableClose: true,
-            height: '250px',
+            height: 'auto',
             width: '400px',
         });
 
-        ref.afterClosed().subscribe((data) => {
-            this.updateExpenseAmount(+categoryElem.id, +data?.inputValue);
-            this.updateIncomeSourceAmount(
-                +incomeSourceElem.nativeElement.id,
-                +data?.inputValue,
-            );
+        dialogRef.afterClosed().subscribe((data) => {
+            if (data?.inputValue) {
+                this.walletService.updateExpenseAmount(
+                    +categoryElem.id,
+                    +data?.inputValue,
+                );
+                this.walletService
+                    .updateIncomeSourceAmount(
+                        +incomeSourceElem.id,
+                        +data?.inputValue,
+                    )
+                    .then(() => this.getIncomeSource());
+
+                this.getExpenseCategories();
+            }
         });
     }
 
@@ -107,59 +129,59 @@ export class WalletComponent implements OnInit {
         });
     }
 
-    private initDatabase(): void {
-        const request = this.indexedDBService.init(DBName.Wallet, 1);
-        request.onupgradeneeded = (event) => {
-            const db = (event.target as IDBOpenDBRequest).result;
-            if (!db.objectStoreNames.contains(DBStoreName.IncomeSource)) {
-                db.createObjectStore(DBStoreName.IncomeSource, {
-                    keyPath: 'id',
-                });
-            }
-
-            if (!db.objectStoreNames.contains(DBStoreName.ExpenseCategory)) {
-                db.createObjectStore(DBStoreName.ExpenseCategory, {
-                    keyPath: 'id',
-                });
-            }
-        };
-    }
-
-    public getExpenseCategories(): void {
+    private getExpenseCategories(): void {
         this.indexedDBService
             .getAllItemsFromStore(DBStoreName.ExpenseCategory)
             .then((data) => (this.expenseCategories = data));
     }
 
-    public getIncomeSource(): void {
+    private getIncomeSource(): void {
         this.indexedDBService
             .getAllItemsFromStore(DBStoreName.IncomeSource)
             .then((data) => (this.incomeSource = data));
     }
 
-    public updateExpenseAmount(itemId: number, value: number): void {
-        this.indexedDBService.updateItem(
-            DBStoreName.ExpenseCategory,
-            itemId,
-            value,
-        );
-        this.getExpenseCategories();
+    public async deleteItem(itemId: number): Promise<void> {
+        const expenseCategoryToDelete: ExpenseCategory =
+            await this.indexedDBService.getItemById(
+                DBStoreName.ExpenseCategory,
+                itemId,
+            );
+
+        if (expenseCategoryToDelete.amount > 0) {
+            const dialogRef = this.dialog.open(ConfirmationPopupComponent, {
+                width: '400px',
+                height: 'auto',
+                disableClose: true,
+                data: {
+                    categoryToDelete: expenseCategoryToDelete,
+                    currency: this.currency,
+                    incomeSource: this.incomeSource,
+                },
+            });
+
+            dialogRef.afterClosed().subscribe((data) => {
+                if (data.delete) {
+                    this.walletService.deleteItem(itemId);
+                    this.getExpenseCategories();
+                    if (data.transferTo) {
+                        this.walletService
+                            .updateIncomeSourceAmount(
+                                data.transferTo,
+                                expenseCategoryToDelete.amount,
+                                true,
+                            )
+                            .then(() => this.getIncomeSource());
+                    }
+                }
+            });
+        } else {
+            this.walletService.deleteItem(itemId);
+            this.getExpenseCategories();
+        }
     }
 
-    public updateIncomeSourceAmount(itemId: number, value: number): void {
-        this.indexedDBService.updateItem(
-            DBStoreName.IncomeSource,
-            itemId,
-            value,
-        );
-        this.getIncomeSource();
-    }
-
-    public deleteItem(index: number): void {
-        this.indexedDBService.deleteItemFormStore(
-            DBStoreName.ExpenseCategory,
-            index,
-        );
-        this.getExpenseCategories();
+    public closeConfirmationPopup(): void {
+        //this.dialog.closeAll();
     }
 }
