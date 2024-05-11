@@ -47,6 +47,7 @@ export class WalletComponent implements OnInit {
             this.indexedDBService.setIncomeSource({
                 name: this.incomeSourceForm.get('incomeSource').value,
                 amount: +this.incomeSourceForm.get('incomeAmount').value,
+                id: Math.floor(Math.random() * 1000),
             });
             this.incomeSourceForm.get('incomeSource').reset();
             this.getIncomeSource();
@@ -66,6 +67,7 @@ export class WalletComponent implements OnInit {
     }
 
     public onDropEvent(event): void {
+        const incomeSourceElem = event.item.element;
         const categoryElem = event.event.target.closest('div[id]');
 
         const ref = this.dialog.open(InputDialog, {
@@ -80,6 +82,10 @@ export class WalletComponent implements OnInit {
 
         ref.afterClosed().subscribe((data) => {
             this.updateExpenseAmount(+categoryElem.id, +data?.inputValue);
+            this.updateIncomeSourceAmount(
+                +incomeSourceElem.nativeElement.id,
+                +data?.inputValue,
+            );
         });
     }
 
@@ -107,7 +113,7 @@ export class WalletComponent implements OnInit {
             const db = (event.target as IDBOpenDBRequest).result;
             if (!db.objectStoreNames.contains(DBStoreName.IncomeSource)) {
                 db.createObjectStore(DBStoreName.IncomeSource, {
-                    autoIncrement: true,
+                    keyPath: 'id',
                 });
             }
 
@@ -138,6 +144,15 @@ export class WalletComponent implements OnInit {
             value,
         );
         this.getExpenseCategories();
+    }
+
+    public updateIncomeSourceAmount(itemId: number, value: number): void {
+        this.indexedDBService.updateItem(
+            DBStoreName.IncomeSource,
+            itemId,
+            value,
+        );
+        this.getIncomeSource();
     }
 
     public deleteItem(index: number): void {
