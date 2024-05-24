@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { IndexedDbService } from '../indexedDB/indexed-db.service';
-import { DBName, DBStoreName } from '../../enums/indexedDB.enum';
+import { DBStoreName } from '../../enums/indexedDB.enum';
 import { IncomeSource } from '../../interfaces/income-source.interface';
+import { ExpenseCategory } from '../../interfaces/expense-category.interface';
 
 @Injectable({
     providedIn: 'root',
@@ -10,52 +12,44 @@ export class WalletService {
     constructor(private readonly indexedDBService: IndexedDbService) {}
 
     public initWalletDatabase(): void {
-        const request = this.indexedDBService.init(DBName.Wallet, 1);
-        request.onupgradeneeded = (event) => {
-            const db = (event.target as IDBOpenDBRequest).result;
-            if (!db.objectStoreNames.contains(DBStoreName.IncomeSource)) {
-                db.createObjectStore(DBStoreName.IncomeSource, {
-                    keyPath: 'id',
-                });
-            }
-
-            if (!db.objectStoreNames.contains(DBStoreName.ExpenseCategory)) {
-                db.createObjectStore(DBStoreName.ExpenseCategory, {
-                    keyPath: 'id',
-                });
-            }
-        };
+        this.indexedDBService.initExpenseCategoryStore();
+        this.indexedDBService.initIncomeSourceStore();
     }
 
-    public updateExpenseAmount(itemId: number, value: number): void {
-        this.indexedDBService.updateItem(
-            DBStoreName.ExpenseCategory,
-            itemId,
-            value,
-        );
+    public updateExpenseAmount(
+        expenseCategory: ExpenseCategory,
+        value: number,
+    ): Observable<any> {
+        const updatedCategory: ExpenseCategory = {
+            ...expenseCategory,
+            amount: expenseCategory.amount + value,
+        };
+        return this.indexedDBService.setExpenseCategory(updatedCategory);
     }
 
     public async updateIncomeSourceAmount(
-        itemId: number,
-        value: number,
+        incomeSourceId: number,
+        newValue: number,
         deletion?: boolean,
     ): Promise<void> {
         let valueToUpdate: number;
-        const incomeSource: IncomeSource = await this.getIncomeSourceById(
-            itemId,
+        const incomeSource = await this.indexedDBService.getItemById(
+            DBStoreName.IncomeSource,
+            incomeSourceId,
         );
 
         if (deletion) {
-            valueToUpdate = incomeSource.amount + value;
+            valueToUpdate = incomeSource.amount + newValue;
         } else {
-            valueToUpdate = incomeSource.amount - value;
+            valueToUpdate = incomeSource.amount - newValue;
         }
 
-        this.indexedDBService.updateItem(
-            DBStoreName.IncomeSource,
-            itemId,
-            valueToUpdate,
-        );
+        const updatedIncomeSource: IncomeSource = {
+            ...incomeSource,
+            amount: valueToUpdate,
+        };
+
+        this.indexedDBService.setIncomeSource(updatedIncomeSource);
     }
 
     public deleteItem(id: number): void {
@@ -65,10 +59,10 @@ export class WalletService {
         );
     }
 
-    public getIncomeSourceById(itemId: number): Promise<IncomeSource> {
-        return this.indexedDBService.getItemById(
-            DBStoreName.IncomeSource,
-            itemId,
-        );
+    public getItemById(
+        storeName: DBStoreName,
+        itemId: number,
+    ): Promise<IncomeSource> {
+        return this.indexedDBService.getItemById(storeName, itemId);
     }
 }

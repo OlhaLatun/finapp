@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import * as localforage from 'localforage';
+import { from, Observable } from 'rxjs';
 import { DBName, DBStoreName } from '../../enums/indexedDB.enum';
 import { ExpenseCategory } from '../../interfaces/expense-category.interface';
 import { IncomeSource } from '../../interfaces/income-source.interface';
@@ -7,116 +9,73 @@ import { IncomeSource } from '../../interfaces/income-source.interface';
     providedIn: 'root',
 })
 export class IndexedDbService {
-    public init(dbName: DBName, version: number): IDBOpenDBRequest {
-        return window.indexedDB.open(dbName, version);
-    }
+    private incomeSourceStore: LocalForage;
+    private expenseCategoryStore: LocalForage;
 
-    public open(dbName: DBName): IDBOpenDBRequest {
-        return window.indexedDB.open(dbName);
-    }
-
-    public setIncomeSource(incomeSource: IncomeSource): void {
-        let database: IDBDatabase;
-
-        const request = this.open(DBName.Wallet);
-        request.onsuccess = (event) => {
-            database = (event.target as IDBOpenDBRequest).result;
-
-            database
-                .transaction([DBStoreName.IncomeSource], 'readwrite')
-                .objectStore(DBStoreName.IncomeSource)
-                .add(incomeSource);
-        };
-    }
-
-    public setExpenseCategory(expenseCategory: ExpenseCategory): void {
-        let database: IDBDatabase;
-
-        const request = this.open(DBName.Wallet);
-        request.onsuccess = (event) => {
-            database = (event.target as IDBOpenDBRequest).result;
-
-            database
-                .transaction([DBStoreName.ExpenseCategory], 'readwrite')
-                .objectStore(DBStoreName.ExpenseCategory)
-                .add(expenseCategory);
-        };
-    }
-
-    public getAllItemsFromStore(storeName: DBStoreName): Promise<[]> {
-        return new Promise((resolve) => {
-            const request = this.open(DBName.Wallet);
-            request.onsuccess = (event) => {
-                const database = (event.target as IDBOpenDBRequest).result;
-
-                const getCategories = database
-                    .transaction([storeName], 'readonly')
-                    .objectStore(storeName)
-                    .getAll();
-
-                getCategories.onsuccess = (event) => {
-                    const storeList = (event.target as IDBRequest).result;
-                    resolve(storeList);
-                };
-            };
+    public initIncomeSourceStore(): void {
+        this.incomeSourceStore = localforage.createInstance({
+            name: DBName.Wallet,
+            storeName: DBStoreName.IncomeSource,
         });
+    }
+    public initExpenseCategoryStore(): void {
+        this.expenseCategoryStore = localforage.createInstance({
+            name: DBName.Wallet,
+            storeName: DBStoreName.ExpenseCategory,
+        });
+    }
+
+    public setIncomeSource(incomeSource: IncomeSource): Observable<any> {
+        return from(
+            this.incomeSourceStore.setItem(
+                incomeSource.id.toString(),
+                incomeSource,
+            ),
+        );
+    }
+
+    public setExpenseCategory(
+        expenseCategory: ExpenseCategory,
+    ): Observable<any> {
+        return from(
+            this.expenseCategoryStore.setItem(
+                expenseCategory.id.toString(),
+                expenseCategory,
+            ),
+        );
+    }
+
+    public async getAllItemsFromStore(storeName: DBStoreName): Promise<any[]> {
+        const store =
+            storeName === DBStoreName.IncomeSource
+                ? this.incomeSourceStore
+                : this.expenseCategoryStore;
+
+        const result = [];
+        await store.iterate((item) => {
+            result.push(item);
+        });
+        return result;
     }
 
     public deleteItemFormStore(storeName: DBStoreName, id: number): void {
-        const request = this.open(DBName.Wallet);
-        request.onsuccess = (event) => {
-            const database = (event.target as IDBOpenDBRequest).result;
+        const store =
+            storeName === DBStoreName.IncomeSource
+                ? this.incomeSourceStore
+                : this.expenseCategoryStore;
 
-            database
-                .transaction([storeName], 'readwrite')
-                .objectStore(storeName)
-                .delete(id);
-        };
+        store.removeItem(id.toString()).then();
     }
 
-    public getItemById(
+    public async getItemById(
         storeName: DBStoreName,
         itemId: number,
-    ): Promise<IncomeSource | ExpenseCategory> {
-        return new Promise((resolve) => {
-            const request = this.open(DBName.Wallet);
-            request.onsuccess = (event) => {
-                const database = (event.target as IDBOpenDBRequest).result;
-                const item = database
-                    .transaction(storeName, 'readonly')
-                    .objectStore(storeName)
-                    .get(itemId);
+    ): Promise<any> {
+        const store =
+            storeName === DBStoreName.IncomeSource
+                ? this.incomeSourceStore
+                : this.expenseCategoryStore;
 
-                item.onsuccess = () => resolve(item.result);
-            };
-        });
-    }
-
-    public updateItem(
-        storeName: DBStoreName,
-        itemId: number,
-        value: number,
-    ): void {
-        const request = this.open(DBName.Wallet);
-        request.onsuccess = (event) => {
-            const database = (event.target as IDBOpenDBRequest).result;
-
-            const objStore = database
-                .transaction(storeName, 'readwrite')
-                .objectStore(storeName);
-
-            const itemRequest = objStore.get(itemId);
-
-            itemRequest.onsuccess = () => {
-                const item = itemRequest.result;
-
-                if (storeName === DBStoreName.ExpenseCategory) {
-                    item.amount = item.amount + value;
-                } else {
-                    item.amount = value;
-                }
-                objStore.put(item);
-            };
-        };
+        return await store.getItem(itemId.toString());
     }
 }
