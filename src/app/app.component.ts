@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthApiService } from './modules/auth/services/auth-api-service/auth.api.service';
 import { LocalStorageService } from './services/local-storage.service';
 import { UserService } from './services/user.service';
 import { LocalStorageKeys } from './enums/local-storage-keys.enum';

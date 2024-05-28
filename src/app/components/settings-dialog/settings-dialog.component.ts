@@ -4,6 +4,7 @@ import { DialogRef } from '@angular/cdk/dialog';
 import { LocalStorageService } from '../../services/local-storage.service';
 import { LocalStorageKeys } from '../../enums/local-storage-keys.enum';
 import { UserSettings } from '../../models/user-settings.model';
+import { WalletService } from '../../services/wallet/wallet.service';
 
 @Component({
     selector: 'app-settings-dialog',
@@ -21,10 +22,11 @@ export class SettingsDialogComponent implements OnInit {
     constructor(
         public dialogRef: DialogRef,
         private readonly localStorageService: LocalStorageService,
+        private readonly walletService: WalletService,
     ) {}
 
     public ngOnInit() {
-        this.settings = this.getSettings();
+        this.settings = this.walletService.getSettings();
 
         this.settingsForm = new FormGroup({
             currency: new FormControl(
@@ -61,8 +63,12 @@ export class SettingsDialogComponent implements OnInit {
                 creditCard: this.settingsForm.get('creditCard')?.value,
             });
 
+            const userID = this.localStorageService.getItem(
+                LocalStorageKeys.UserId,
+            );
+
             this.localStorageService.setItem(
-                LocalStorageKeys.Settings,
+                `${LocalStorageKeys.Settings}-${userID}`,
                 settings,
             );
             this.dialogRef.close();
@@ -80,14 +86,5 @@ export class SettingsDialogComponent implements OnInit {
     public closeDialog(event: Event) {
         event.preventDefault();
         this.dialogRef.close();
-    }
-
-    private getSettings(): UserSettings {
-        if (this.localStorageService.getItem('settings')) {
-            this.isDefaultSettings = !this.isDefaultSettings;
-            return this.localStorageService.getItem('settings');
-        } else {
-            return new UserSettings();
-        }
     }
 }

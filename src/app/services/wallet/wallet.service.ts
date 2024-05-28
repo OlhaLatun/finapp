@@ -11,6 +11,9 @@ import { IndexedDbService } from '../indexedDB/indexed-db.service';
 import { DBStoreName } from '../../enums/indexedDB.enum';
 import { IncomeSource } from '../../interfaces/income-source.interface';
 import { ExpenseCategory } from '../../interfaces/expense-category.interface';
+import { UserSettings } from '../../models/user-settings.model';
+import { LocalStorageKeys } from '../../enums/local-storage-keys.enum';
+import { LocalStorageService } from '../local-storage.service';
 
 @Injectable({
     providedIn: 'root',
@@ -23,11 +26,30 @@ export class WalletService implements OnDestroy {
         new BehaviorSubject<ExpenseCategory>(null);
 
     private readonly unsubscriber = new Subject<void>();
-    constructor(private readonly indexedDBService: IndexedDbService) {}
+    constructor(
+        private readonly indexedDBService: IndexedDbService,
+        private readonly localStorageService: LocalStorageService,
+    ) {}
 
     ngOnDestroy() {
         this.unsubscriber.next();
         this.unsubscriber.complete();
+    }
+    public getSettings(): UserSettings {
+        const userID =
+            this.localStorageService.getItem(LocalStorageKeys.UserId) || null;
+
+        if (
+            this.localStorageService.getItem(
+                `${LocalStorageKeys.Settings}-${userID}`,
+            )
+        ) {
+            return this.localStorageService.getItem(
+                `${LocalStorageKeys.Settings}-${userID}`,
+            );
+        } else {
+            return new UserSettings();
+        }
     }
 
     public getIncomeSourceItem(): IncomeSource {

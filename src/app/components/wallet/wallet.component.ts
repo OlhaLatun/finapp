@@ -30,6 +30,7 @@ export class WalletComponent implements OnInit, OnDestroy {
     public expenseCategories: ExpenseCategory[] = [];
     public incomeSource: IncomeSource[] = [];
     public currency = 'USD';
+    public userID = this.localStorage.getItem(LocalStorageKeys.UserId) || null;
     @ViewChild('confirmationPopup') public confirmationPopup: TemplateRef<any>;
 
     private readonly unsubscriber: Subject<void> = new Subject<void>();
@@ -52,9 +53,7 @@ export class WalletComponent implements OnInit, OnDestroy {
     }
 
     public ngOnInit(): void {
-        this.currency = this.localStorage.getItem(
-            LocalStorageKeys.Settings,
-        ).currency;
+        this.currency = this.walletService.getSettings().currency;
 
         this.initForms();
         this.walletService.initWalletDatabase();
@@ -98,9 +97,7 @@ export class WalletComponent implements OnInit, OnDestroy {
         }
     }
 
-    public onDropEvent(event): void {
-        const incomeSourceElemId = event.item.element.nativeElement.id;
-        const categoryElem = event.event.target.closest('div[id]').id;
+    public onDropEvent(): void {
         const incomeSource: IncomeSource =
             this.walletService.getIncomeSourceItem();
         const expenseCategory: ExpenseCategory =

@@ -74,7 +74,7 @@
     <div class="current-month">
         {{ getDate() }}
     </div>
-    <div cdkDropList (cdkDropListDropped)="onDropEvent($event)" id="table">
+    <div cdkDropList (cdkDropListDropped)="onDropEvent()" id="table">
         <div class="expense-category-row header-row">
             <div class="expense-category-col">N</div>
             <div class="expense-category-col">Expense</div>
