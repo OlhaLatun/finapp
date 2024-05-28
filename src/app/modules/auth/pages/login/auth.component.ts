@@ -76,7 +76,7 @@ export class AuthComponent implements OnInit {
                         });
                     }
                 },
-                error: (error) => console.log(error),
+                error: (error) => alert(error.error.message),
             });
         }
     }

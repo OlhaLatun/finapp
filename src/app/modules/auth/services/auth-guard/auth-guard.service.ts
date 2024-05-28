@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { UserService } from '../../../../services/user.service';
-import { map, Observable, of, skipWhile } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -10,8 +10,7 @@ export class AuthGuard implements CanActivate {
         private readonly router: Router,
     ) {}
     canActivate(): Observable<boolean> {
-        return this.userService.getCurrentUserObservable().pipe(
-            skipWhile((user) => !user),
+        return this.userService.getUserById().pipe(
             map((user) => {
                 if (user) {
                     this.router.navigate(['wallet']);

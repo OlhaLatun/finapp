@@ -36,9 +36,7 @@ export class AppComponent implements OnInit {
                 });
         }
 
-        if (!this.userService.getUserID()) {
-            this.router.navigate(['/login']);
-        } else {
+        if (this.userService.getUserID()) {
             this.userService.getUserById().subscribe((user) => {
                 this.userService.setCurrentUser(user);
             });

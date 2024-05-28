@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { User } from '../models/user.model';
 import { UsersApiService } from './users.api.service';
 import { LocalStorageService } from './local-storage.service';
@@ -22,7 +22,7 @@ export class UserService {
 
     public getUserById(): Observable<User> {
         const userId = this.getUserID();
-        return this.usersApiService.getUserById(userId);
+        return userId ? this.usersApiService.getUserById(userId) : of(null);
     }
 
     public getUserToken(): string {
