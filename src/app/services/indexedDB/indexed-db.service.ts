@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as localforage from 'localforage';
-import { from, Observable } from 'rxjs';
+import { from, Observable, of, switchMap } from 'rxjs';
 import { DBName, DBStoreName } from '../../enums/indexedDB.enum';
 import { ExpenseCategory } from '../../interfaces/expense-category.interface';
 import { IncomeSource } from '../../interfaces/income-source.interface';
@@ -9,8 +9,8 @@ import { IncomeSource } from '../../interfaces/income-source.interface';
     providedIn: 'root',
 })
 export class IndexedDbService {
-    private incomeSourceStore: LocalForage;
-    private expenseCategoryStore: LocalForage;
+    public incomeSourceStore: LocalForage;
+    public expenseCategoryStore: LocalForage;
 
     public initIncomeSourceStore(): void {
         this.incomeSourceStore = localforage.createInstance({
@@ -25,24 +25,24 @@ export class IndexedDbService {
         });
     }
 
-    public setIncomeSource(incomeSource: IncomeSource): Observable<any> {
+    public setIncomeSource(incomeSource: IncomeSource): Observable<void> {
         return from(
             this.incomeSourceStore.setItem(
                 incomeSource.id.toString(),
                 incomeSource,
             ),
-        );
+        ).pipe(switchMap(() => of(null)));
     }
 
     public setExpenseCategory(
         expenseCategory: ExpenseCategory,
-    ): Observable<any> {
+    ): Observable<void> {
         return from(
             this.expenseCategoryStore.setItem(
                 expenseCategory.id.toString(),
                 expenseCategory,
             ),
-        );
+        ).pipe(switchMap(() => of(null)));
     }
 
     public async getAllItemsFromStore(storeName: DBStoreName): Promise<any[]> {
@@ -58,6 +58,15 @@ export class IndexedDbService {
         return result;
     }
 
+    public getItemById(storeName: DBStoreName, itemId: string): Promise<any> {
+        const store =
+            storeName === DBStoreName.IncomeSource
+                ? this.incomeSourceStore
+                : this.expenseCategoryStore;
+
+        return store.getItem(itemId);
+    }
+
     public deleteItemFormStore(storeName: DBStoreName, id: number): void {
         const store =
             storeName === DBStoreName.IncomeSource
@@ -65,17 +74,5 @@ export class IndexedDbService {
                 : this.expenseCategoryStore;
 
         store.removeItem(id.toString()).then();
-    }
-
-    public async getItemById(
-        storeName: DBStoreName,
-        itemId: number,
-    ): Promise<any> {
-        const store =
-            storeName === DBStoreName.IncomeSource
-                ? this.incomeSourceStore
-                : this.expenseCategoryStore;
-
-        return await store.getItem(itemId.toString());
     }
 }

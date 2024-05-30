@@ -1,12 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import {
-    BehaviorSubject,
-    Observable,
-    Subject,
-    switchMap,
-    takeUntil,
-    tap,
-} from 'rxjs';
+import { Observable, Subject, switchMap, takeUntil } from 'rxjs';
 import { IndexedDbService } from '../indexedDB/indexed-db.service';
 import { DBStoreName } from '../../enums/indexedDB.enum';
 import { IncomeSource } from '../../interfaces/income-source.interface';
@@ -19,12 +12,6 @@ import { LocalStorageService } from '../local-storage.service';
     providedIn: 'root',
 })
 export class WalletService implements OnDestroy {
-    private readonly incomeSourceItem: BehaviorSubject<IncomeSource> =
-        new BehaviorSubject<IncomeSource>(null);
-
-    private readonly expenseCategoryItem: BehaviorSubject<ExpenseCategory> =
-        new BehaviorSubject<ExpenseCategory>(null);
-
     private readonly unsubscriber = new Subject<void>();
     constructor(
         private readonly indexedDBService: IndexedDbService,
@@ -52,13 +39,6 @@ export class WalletService implements OnDestroy {
         }
     }
 
-    public getIncomeSourceItem(): IncomeSource {
-        return this.incomeSourceItem.getValue();
-    }
-    public getExpenseCategoryItem(): IncomeSource {
-        return this.incomeSourceItem.getValue();
-    }
-
     public initWalletDatabase(): void {
         this.indexedDBService.initExpenseCategoryStore();
         this.indexedDBService.initIncomeSourceStore();
@@ -76,11 +56,11 @@ export class WalletService implements OnDestroy {
     }
 
     public updateIncomeSourceAmount(
-        incomeSourceId: number,
+        incomeSourceId: string,
         newValue: number,
         deletion?: boolean,
-    ): Observable<IncomeSource> {
-        return this.indexedDBService.getIncomeSourceById(incomeSourceId).pipe(
+    ): Observable<void> {
+        return this.getIncomeSourceById(incomeSourceId).pipe(
             takeUntil(this.unsubscriber),
             switchMap((incomeSource) => {
                 let valueToUpdate: number;
@@ -101,34 +81,55 @@ export class WalletService implements OnDestroy {
         );
     }
 
-    public deleteItem(id: number): void {
-        this.indexedDBService.deleteItemFormStore(
-            DBStoreName.ExpenseCategory,
-            id,
-        );
+    public deleteItem(storeName: DBStoreName, id: number): void {
+        this.indexedDBService.deleteItemFormStore(storeName, id);
     }
 
-    public setIncomeSourceItem(itemId: number): void {
-        this.indexedDBService
-            .getIncomeSourceById(itemId)
-            .pipe(
-                takeUntil(this.unsubscriber),
-                tap((item) => {
-                    this.incomeSourceItem.next(item);
-                }),
-            )
-            .subscribe();
+    public getExpenseCategoryList(): Observable<ExpenseCategory[]> {
+        return new Observable((observer) => {
+            this.indexedDBService
+                .getAllItemsFromStore(DBStoreName.ExpenseCategory)
+                .then((items) => {
+                    observer.next(items);
+                    observer.complete();
+                })
+                .catch((error) => observer.error(error));
+        });
     }
 
-    public setExpenseCategoryItem(itemId: number): void {
-        this.indexedDBService
-            .getExpenseCategoryById(itemId)
-            .pipe(
-                takeUntil(this.unsubscriber),
-                tap((item) => {
-                    this.expenseCategoryItem.next(item);
-                }),
-            )
-            .subscribe();
+    public getIncomeSourceList(): Observable<IncomeSource[]> {
+        return new Observable((observer) => {
+            this.indexedDBService
+                .getAllItemsFromStore(DBStoreName.IncomeSource)
+                .then((items) => {
+                    observer.next(items);
+                    observer.complete();
+                })
+                .catch((error) => observer.error(error));
+        });
+    }
+
+    public getIncomeSourceById(itemId: string): Observable<IncomeSource> {
+        return new Observable<IncomeSource>((observer) => {
+            this.indexedDBService
+                .getItemById(DBStoreName.IncomeSource, itemId)
+                .then((item) => {
+                    observer.next(item as IncomeSource);
+                    observer.complete();
+                })
+                .catch((reason) => observer.error(reason));
+        });
+    }
+
+    public getExpenseCategoryById(itemId: string): Observable<ExpenseCategory> {
+        return new Observable<ExpenseCategory>((observer) => {
+            this.indexedDBService
+                .getItemById(DBStoreName.ExpenseCategory, itemId)
+                .then((item) => {
+                    observer.next(item as ExpenseCategory);
+                    observer.complete();
+                })
+                .catch((reason) => observer.error(reason));
+        });
     }
 }
