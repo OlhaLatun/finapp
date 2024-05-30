@@ -16,7 +16,6 @@ import {
     takeUntil,
     tap,
 } from 'rxjs';
-import { IndexedDbService } from '../../services/indexedDB/indexed-db.service';
 import { DBStoreName } from '../../enums/indexedDB.enum';
 import { MatDialog } from '@angular/material/dialog';
 import { IncomeSource } from '../../interfaces/income-source.interface';
@@ -46,7 +45,6 @@ export class WalletComponent implements OnInit, OnDestroy {
 
     constructor(
         private readonly formBuilder: FormBuilder,
-        private readonly indexedDBService: IndexedDbService,
         private readonly dialog: MatDialog,
         private readonly walletService: WalletService,
     ) {}
@@ -70,7 +68,7 @@ export class WalletComponent implements OnInit, OnDestroy {
     }
 
     public onIncomeSourceSubmit(): void {
-        this.indexedDBService
+        this.walletService
             .setIncomeSource({
                 name: this.incomeSourceForm.get('incomeSource').value,
                 amount: +this.incomeSourceForm.get('incomeAmount').value,
@@ -91,7 +89,7 @@ export class WalletComponent implements OnInit, OnDestroy {
 
     public onExpenseCategorySubmit(): void {
         if (this.expenseCategoryForm.get('expenseCategory').value) {
-            this.indexedDBService
+            this.walletService
                 .setExpenseCategory({
                     name: this.expenseCategoryForm.get('expenseCategory').value,
                     id: Math.floor(Math.random() * 1000),
@@ -167,6 +165,7 @@ export class WalletComponent implements OnInit, OnDestroy {
             switchMap(() => of(null)),
         );
     }
+
     private initForms(): void {
         this.incomeSourceForm = this.formBuilder.group({
             incomeSource: [{ value: '', disabled: false }],

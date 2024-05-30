@@ -19,7 +19,8 @@
     "useDefineForClassFields": false,
     "allowSyntheticDefaultImports": true
   },
-  "exclude": ["node_modules", "tmp"],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "tmp", "assets"],
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,
     "strictInjectionParameters": true

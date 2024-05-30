@@ -1,9 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as localforage from 'localforage';
-import { from, Observable, of, switchMap } from 'rxjs';
 import { DBName, DBStoreName } from '../../enums/indexedDB.enum';
-import { ExpenseCategory } from '../../interfaces/expense-category.interface';
-import { IncomeSource } from '../../interfaces/income-source.interface';
 
 @Injectable({
     providedIn: 'root',
@@ -25,24 +22,17 @@ export class IndexedDbService {
         });
     }
 
-    public setIncomeSource(incomeSource: IncomeSource): Observable<void> {
-        return from(
-            this.incomeSourceStore.setItem(
-                incomeSource.id.toString(),
-                incomeSource,
-            ),
-        ).pipe(switchMap(() => of(null)));
-    }
+    public setItem(
+        storeName: DBStoreName,
+        id: string,
+        item: any,
+    ): Promise<any> {
+        const store =
+            storeName === DBStoreName.IncomeSource
+                ? this.incomeSourceStore
+                : this.expenseCategoryStore;
 
-    public setExpenseCategory(
-        expenseCategory: ExpenseCategory,
-    ): Observable<void> {
-        return from(
-            this.expenseCategoryStore.setItem(
-                expenseCategory.id.toString(),
-                expenseCategory,
-            ),
-        ).pipe(switchMap(() => of(null)));
+        return store.setItem(id, item);
     }
 
     public async getAllItemsFromStore(storeName: DBStoreName): Promise<any[]> {

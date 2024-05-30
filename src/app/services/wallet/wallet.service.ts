@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { Observable, Subject, switchMap, takeUntil } from 'rxjs';
+import { from, Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { IndexedDbService } from '../indexedDB/indexed-db.service';
 import { DBStoreName } from '../../enums/indexedDB.enum';
 import { IncomeSource } from '../../interfaces/income-source.interface';
@@ -52,7 +52,7 @@ export class WalletService implements OnDestroy {
             ...expenseCategory,
             amount: expenseCategory.amount + value,
         };
-        return this.indexedDBService.setExpenseCategory(updatedCategory);
+        return this.setExpenseCategory(updatedCategory);
     }
 
     public updateIncomeSourceAmount(
@@ -74,7 +74,9 @@ export class WalletService implements OnDestroy {
                     ...incomeSource,
                     amount: valueToUpdate,
                 };
-                return this.indexedDBService.setIncomeSource(
+                return this.indexedDBService.setItem(
+                    DBStoreName.IncomeSource,
+                    incomeSourceId,
                     updatedIncomeSource,
                 );
             }),
@@ -131,5 +133,27 @@ export class WalletService implements OnDestroy {
                 })
                 .catch((reason) => observer.error(reason));
         });
+    }
+
+    public setIncomeSource(incomeSource: IncomeSource): Observable<void> {
+        return from(
+            this.indexedDBService.setItem(
+                DBStoreName.IncomeSource,
+                incomeSource.id.toString(),
+                incomeSource,
+            ),
+        ).pipe(switchMap(() => of(null)));
+    }
+
+    public setExpenseCategory(
+        expenseCategory: ExpenseCategory,
+    ): Observable<void> {
+        return from(
+            this.indexedDBService.setItem(
+                DBStoreName.ExpenseCategory,
+                expenseCategory.id.toString(),
+                expenseCategory,
+            ),
+        ).pipe(switchMap(() => of(null)));
     }
 }
