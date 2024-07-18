@@ -15,7 +15,7 @@ import { LocalStorageKeys } from '../../enums/local-storage-keys.enum';
 import { LocalStorageService } from '../../services/local-storage.service';
 import { UserSettings } from '../../models/user-settings.model';
 
-fdescribe('SettingsDialogComponent', () => {
+describe('SettingsDialogComponent', () => {
     let component: SettingsDialogComponent;
     let fixture: ComponentFixture<SettingsDialogComponent>;
     let dialogRefSpy: jasmine.SpyObj<MatDialogRef<SettingsDialogComponent>>;
