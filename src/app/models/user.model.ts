@@ -6,6 +6,10 @@ export class User {
     public objectId = '';
     public 'user-token' = '';
 
+    constructor(data: Partial<UserName>) {
+        this.assign(data);
+    }
+
     assign(data: Partial<UserName>) {
         Object.assign(this, data);
         return this;

@@ -37,6 +37,7 @@ import { AuthGuard } from './modules/auth/services/auth-guard/auth-guard.service
 import { InputDialogComponent } from './components/input-dialog/input-dialog.component';
 import { ConfirmationPopupComponent } from './components/confirmation-popup/confirmation-popup.component';
 import { MAT_DIALOG_SCROLL_STRATEGY_PROVIDER } from '@angular/material/dialog';
+import { RouterModule } from '@angular/router';
 @NgModule({
     declarations: [
         AppComponent,

@@ -4,11 +4,8 @@ import { UserService } from '../../services/user.service';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsDialogComponent } from '../settings-dialog/settings-dialog.component';
 import { Observable } from 'rxjs';
+import { TabLink } from '../../interfaces/tab-link.interface';
 
-interface TabLink {
-    title: string;
-    key: string;
-}
 @Component({
     selector: 'app-navigation',
     templateUrl: './navigation.component.html',
