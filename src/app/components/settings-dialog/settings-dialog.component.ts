@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DialogRef } from '@angular/cdk/dialog';
 import { LocalStorageService } from '../../services/local-storage.service';
 import { LocalStorageKeys } from '../../enums/local-storage-keys.enum';
@@ -23,29 +23,30 @@ export class SettingsDialogComponent implements OnInit {
         public dialogRef: DialogRef,
         private readonly localStorageService: LocalStorageService,
         private readonly walletService: WalletService,
+        private readonly formBuilder: FormBuilder,
     ) {}
 
     public ngOnInit() {
         this.settings = this.walletService.getSettings();
 
-        this.settingsForm = new FormGroup({
-            currency: new FormControl(
+        this.settingsForm = this.formBuilder.group({
+            currency: this.formBuilder.control(
                 {
                     value: this.settings?.currency,
                     disabled: !this.isDefaultSettings,
                 },
                 [Validators.required],
             ),
-            income: new FormControl(
+            income: this.formBuilder.control(
                 {
                     value: this.settings?.income,
                     disabled: !this.isDefaultSettings,
                 },
                 [Validators.required],
             ),
-            secondIncomeName: new FormControl(''),
-            secondIncomeValue: new FormControl(0),
-            creditCard: new FormControl(
+            secondIncomeName: '',
+            secondIncomeValue: 0,
+            creditCard: this.formBuilder.control(
                 {
                     value: this.settings?.creditCard,
                     disabled: !this.isDefaultSettings,
