@@ -33,6 +33,7 @@ export class NavigationComponent implements OnInit {
     }
 
     public logout(): void {
+        console.log('logout');
         this.onLogout.emit();
     }
 
