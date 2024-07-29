@@ -9,6 +9,7 @@ export default [
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
   {rules: {
-    "@typescript-eslint/no-explicit-any": "warn"
+    "@typescript-eslint/no-explicit-any": "warn",
+      "no-console": "error"
     }}
 ];
