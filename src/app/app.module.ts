@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,7 +14,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { MatInputModule } from '@angular/material/input';
 import { AuthComponent } from './modules/auth/pages/login/auth.component';
 import { HttpClientModule } from '@angular/common/http';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
     MAT_RADIO_DEFAULT_OPTIONS,
     MatRadioModule,
@@ -35,7 +36,8 @@ import { AuthService } from './modules/auth/services/auth-service/auth.service';
 import { AuthGuard } from './modules/auth/services/auth-guard/auth-guard.service';
 import { InputDialogComponent } from './components/input-dialog/input-dialog.component';
 import { ConfirmationPopupComponent } from './components/confirmation-popup/confirmation-popup.component';
-
+import { MAT_DIALOG_SCROLL_STRATEGY_PROVIDER } from '@angular/material/dialog';
+import { RouterModule } from '@angular/router';
 @NgModule({
     declarations: [
         AppComponent,
@@ -49,12 +51,14 @@ import { ConfirmationPopupComponent } from './components/confirmation-popup/conf
         ConfirmationPopupComponent,
     ],
     imports: [
+        MatDialogModule,
         MatFormFieldModule,
         MatSelectModule,
         MatInputModule,
         ReactiveFormsModule,
         BrowserModule,
         AppRoutingModule,
+        ReactiveFormsModule,
         BrowserAnimationsModule,
         MatButtonModule,
         MatTabsModule,
@@ -62,13 +66,14 @@ import { ConfirmationPopupComponent } from './components/confirmation-popup/conf
         MatIconModule,
         MatMenuModule,
         HttpClientModule,
-        MatDialogModule,
         MatRadioModule,
         FormsModule,
         MatTableModule,
         DragDropModule,
     ],
     providers: [
+        provideAnimations(),
+        MAT_DIALOG_SCROLL_STRATEGY_PROVIDER,
         {
             provide: MAT_RADIO_DEFAULT_OPTIONS,
             useValue: { color: 'primary' },
@@ -79,6 +84,7 @@ import { ConfirmationPopupComponent } from './components/confirmation-popup/conf
         LocalStorageService,
         UsersApiService,
         AuthGuard,
+        MatDialog,
     ],
     bootstrap: [AppComponent],
 })

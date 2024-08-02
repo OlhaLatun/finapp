@@ -8,7 +8,7 @@ import { User } from '../../../../models/user.model';
     providedIn: 'root',
 })
 export class AuthApiService {
-    private baseUrl = 'https://ferventselection.backendless.app';
+    private baseUrl = 'https://wholebite-us.backendless.app';
     constructor(private readonly http: HttpClient) {}
 
     public registerNewUser(credentials: UserCredentials): Observable<User> {

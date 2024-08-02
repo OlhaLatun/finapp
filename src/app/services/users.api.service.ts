@@ -13,6 +13,6 @@ export class UsersApiService {
             .get<User>(
                 `https://ferventselection.backendless.app/api/data/Users/${objectId}`,
             )
-            .pipe(map((user) => new User().assign(user)));
+            .pipe(map((user) => new User(user)));
     }
 }

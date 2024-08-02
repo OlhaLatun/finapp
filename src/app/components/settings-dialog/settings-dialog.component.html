@@ -23,7 +23,6 @@
                 <mat-select
                     class="input"
                     formControlName="currency"
-                    [(value)]="currency[0].name"
                     placeholder="Select currency"
                 >
                     <mat-option *ngFor="let c of currency" [value]="c.name"
@@ -40,7 +39,6 @@
                     name="income"
                     type="text"
                     placeholder="Enter your income"
-                    [value]="0"
                 />
             </mat-form-field>
 

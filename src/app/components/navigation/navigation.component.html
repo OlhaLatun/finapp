@@ -19,7 +19,11 @@
         </button>
     </span>
     <mat-menu #menu="matMenu">
-        <button mat-menu-item (click)="showSettingsDialog()">
+        <button
+            mat-menu-item
+            class="settings-button"
+            (click)="showSettingsDialog()"
+        >
             <mat-icon>settings</mat-icon> Settings
         </button>
         <button mat-menu-item (click)="logout()">

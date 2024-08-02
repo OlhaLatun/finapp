@@ -9,7 +9,7 @@
     <small>You can transfer amount back to your income source. </small>
     <mat-form-field>
         <mat-label>Income</mat-label>
-        <mat-select [formControl]="dropdownControl">
+        <mat-select [formControl]="dropdownControl" ngDefaultControl>
             <mat-option
                 *ngFor="let source of data.incomeSource"
                 [value]="source.id"

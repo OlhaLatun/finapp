@@ -111,16 +111,16 @@ export class WalletComponent implements OnInit, OnDestroy {
         this.setDropItems(incomeSourceElemId, categoryElemId)
             .pipe(switchMap(() => this.openInputDialog()))
             .pipe(
-                filter((data) => !!data?.inputValue),
+                filter((data) => !!data?.amountSpent),
                 switchMap((data) =>
                     forkJoin([
                         this.walletService.updateExpenseAmount(
                             this.expenseCategoryDropZone,
-                            +data?.inputValue,
+                            +data?.amountSpent,
                         ),
                         this.walletService.updateIncomeSourceAmount(
                             this.droppedIncomeSource.id.toString(),
-                            +data?.inputValue,
+                            +data?.amountSpent,
                         ),
                     ]),
                 ),
@@ -132,7 +132,7 @@ export class WalletComponent implements OnInit, OnDestroy {
             .subscribe();
     }
 
-    private openInputDialog(): Observable<{ inputValue: string }> {
+    private openInputDialog(): Observable<{ amountSpent: string }> {
         const dialogRef = this.dialog.open(InputDialogComponent, {
             data: {
                 currency: this.currency,

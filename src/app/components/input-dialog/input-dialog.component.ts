@@ -38,16 +38,17 @@ export class InputDialogComponent implements OnInit {
     }
 
     public onDialogFormSubmit(): void {
-        const value = this.dialogForm.get('amountSpent').value;
+        const totalAmount = this.data.incomeSource.amount;
+        const amountSpent = +this.dialogForm.get('amountSpent').value;
         this.shouldShowValidationMessage =
-            this.data.incomeSource.amount <= 0 &&
-            +value > this.data.incomeSource.amount;
+            totalAmount <= 0 || amountSpent > totalAmount;
+
         if (
             this.dialogForm.valid &&
-            !!value &&
+            !!amountSpent &&
             !this.shouldShowValidationMessage
         ) {
-            this.dialogRef.close({ inputValue: value });
+            this.dialogRef.close({ amountSpent });
         }
     }
 
