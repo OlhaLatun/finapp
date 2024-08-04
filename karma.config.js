@@ -12,6 +12,13 @@ module.exports = function (config) {
         client: {
             clearContext: false,
         },
+        browsers: ['ChromeHeadlessNoSandbox'],
+        customLaunchers: {
+            ChromeHeadlessNoSandbox: {
+                base: 'ChromeHeadless',
+                flags: ['--no-sandbox'],
+            },
+        },
         coverageReporter: {
             dir: require('path').join(__dirname, './coverage/my-app-name'),
             subdir: '.',
@@ -22,8 +29,7 @@ module.exports = function (config) {
         colors: true,
         logLevel: config.LOG_INFO,
         autoWatch: true,
-        browsers: ['Chrome'],
-        singleRun: false,
+        singleRun: true,
         restartOnFileChange: true,
     });
 };
