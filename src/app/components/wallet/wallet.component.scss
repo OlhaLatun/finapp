@@ -1,103 +1,103 @@
-aside, main {
-  display: block;
-  float: left;
+aside,
+main {
+    display: block;
+    float: left;
 }
 
 aside {
-  width: 35vw;
-  height: calc(100vh - 50px);
-  background-color: #fafafa;
+    width: 35vw;
+    height: calc(100vh - 50px);
+    background-color: #fafafa;
 }
 
 main {
-  width: calc(60vw - 50px);
-  padding: 0 24px;
+    width: calc(60vw - 50px);
+    padding: 0 24px;
 
-  .current-month {
-    font-size: 24px;
-    margin: 20px 0;
-  }
+    .current-month {
+        font-size: 24px;
+        margin: 20px 0;
+    }
 }
 
 .income-source-container {
+    .income-source {
+        padding: 20px;
+        .income-source-item {
+            color: darkslateblue;
+            border: 2px solid;
+            font-size: 24px;
+            padding: 10px;
+            margin: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            &_name {
+                display: flex;
+                align-items: center;
+                margin-bottom: 10px;
 
-  .income-source {
-    padding: 20px;
-    .income-source-item {
-      color: darkslateblue;
-      background-color: #eef7ff;
-      border: 2px solid cornflowerblue;
-      font-size: 24px;
-      padding: 10px;
-      margin: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      &_name {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-
-        mat-icon {
-          color: cornflowerblue;
-          margin-right: 10px;
+                mat-icon {
+                    color: cornflowerblue;
+                    margin-right: 10px;
+                }
+            }
         }
-      }
     }
-  }
 }
 
 .wallet-form {
-  padding: 24px;
+    padding: 24px;
 
-  .income-source-input, .expense-category-input, .income-amount-input {
+    .income-source-input,
+    .expense-category-input,
+    .income-amount-input {
+        width: 30vw;
+        margin-right: 20px;
+    }
 
-    width: 30vw;
-    margin-right: 20px;
-  }
-
-   .expense-category {
-    width: 50vw;
-    margin-right: 20px;
-  }
+    .expense-category {
+        width: 50vw;
+        margin-right: 20px;
+    }
 }
 
 .mat-column-position {
-  width: 30px;
-  border-right: 1px solid black;
+    width: 30px;
+    border-right: 1px solid black;
 }
 
 .expense-category-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-  font-size: 18px;
-  color: darkslateblue;
-  background-color: #eef7ff;
-  border: 2px solid cornflowerblue;
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: darkslateblue;
+    background-color: #eef7ff;
+    border: 2px solid cornflowerblue;
 
-  .expense-category-col {
-    width: 30vw;
-    border-right: 2px solid cornflowerblue;
-    padding: 10px;
-    margin-right: 10px;
+    .expense-category-col {
+        width: 30vw;
+        border-right: 2px solid cornflowerblue;
+        padding: 10px;
+        margin-right: 10px;
 
-    &:first-child {
-      width: 30px;
-      text-align: center;
+        &:first-child {
+            width: 30px;
+            text-align: center;
+        }
+
+        &:last-child {
+            flex: 1;
+            justify-self: right;
+            text-align: right;
+            border-right: none;
+        }
     }
-
-    &:last-child {
-      flex: 1;
-      justify-self: right;
-      text-align: right;
-      border-right: none;
-    }
-  }
 }
 
 .header-row {
-  font-weight: 500;
-  text-transform: uppercase;
-  background-color: lightskyblue;
+    font-weight: 500;
+    text-transform: uppercase;
+    background-color: lightskyblue;
 }

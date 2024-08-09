@@ -34,7 +34,17 @@
         </form>
         <div class="income-source" cdkDropList cdkDropListConnectedTo="table">
             <ng-container *ngFor="let source of incomeSource">
-                <div class="income-source-item" cdkDrag [id]="source.id">
+                <div
+                    class="income-source-item"
+                    cdkDrag
+                    [id]="source.id"
+                    [style.background-color]="
+                        source.amount === 0 ? '#F7A1C4' : '#eef7ff'
+                    "
+                    [style.border-color]="
+                        source.amount === 0 ? '#f15b98' : 'cornflowerblue'
+                    "
+                >
                     <div class="income-source-item_name">
                         <mat-icon cdkDragHandle>drag_indicator</mat-icon>
                         <span> {{ source.name }} </span>
