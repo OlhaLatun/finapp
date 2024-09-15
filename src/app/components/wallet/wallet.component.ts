@@ -196,7 +196,7 @@ export class WalletComponent implements OnInit, OnDestroy {
 
     private getIncomeSource(): void {
         this.walletService
-            .getIncomeSourceList()
+            .getCurrentUserIncomeSource()
             .pipe(
                 tap((incomeSource) => (this.incomeSource = incomeSource)),
                 takeUntil(this.unsubscriber),

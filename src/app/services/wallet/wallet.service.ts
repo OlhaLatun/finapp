@@ -90,23 +90,7 @@ export class WalletService implements OnDestroy {
         this.indexedDBService.deleteItemFormStore(storeName, id);
     }
 
-    public getExpenseCategoryList(): Observable<ExpenseCategory[]> {
-        return;
-    }
-
-    public getIncomeSourceList(): Observable<IncomeSource[]> {
-        return new Observable((observer) => {
-            this.indexedDBService
-                .getAllItemsFromStore(DBStoreName.IncomeSource)
-                .then((items) => {
-                    observer.next(items);
-                    observer.complete();
-                })
-                .catch((error) => observer.error(error));
-        });
-    }
-
-    public getCurrentUserIncomeSource(): Observable<IncomeSource> {
+    public getCurrentUserIncomeSource(): Observable<IncomeSource[]> {
         return this.indexedDBService.getItemById(
             DBStoreName.IncomeSource,
             this.userService.getUserID(),
@@ -120,14 +104,19 @@ export class WalletService implements OnDestroy {
         );
     }
 
-    public setIncomeSource(incomeSource: IncomeSource): Observable<void> {
-        return from(
-            this.indexedDBService.setItem(
-                DBStoreName.IncomeSource,
-                this.userService.getUserID(),
-                incomeSource,
-            ),
-        ).pipe(switchMap(() => of(null)));
+    public setIncomeSource(incomeSourceItem: IncomeSource): Observable<void> {
+        return this.indexedDBService
+            .getItemById(DBStoreName.IncomeSource, this.userService.getUserID())
+            .pipe(
+                switchMap((incomeSource) => {
+                    const data = incomeSource || [];
+                    return this.indexedDBService.setItem(
+                        DBStoreName.IncomeSource,
+                        this.userService.getUserID(),
+                        [...data, incomeSourceItem],
+                    );
+                }),
+            );
     }
 
     public setExpenseCategory(
