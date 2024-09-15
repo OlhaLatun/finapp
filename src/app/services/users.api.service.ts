@@ -11,7 +11,7 @@ export class UsersApiService {
     public getUserById(objectId: string): Observable<User> {
         return this.http
             .get<User>(
-                `https://ferventselection.backendless.app/api/data/Users/${objectId}`,
+                `https://wholebite-us.backendless.app/api/data/Users/${objectId}`,
             )
             .pipe(map((user) => new User(user)));
     }
