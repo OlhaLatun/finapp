@@ -20,7 +20,13 @@
 
     <div class="confirmation-popup-buttons">
         <button mat-flat-button (click)="onCancelClick()">Cancel</button>
-        <button mat-raised-button color="success" (click)="deleteItem()">
+        <button
+            [ngClass]="{ 'delete-button-disabled': !dropdownControl.value }"
+            mat-raised-button
+            color="success"
+            (click)="deleteItem()"
+            [disabled]="!dropdownControl.value"
+        >
             Delete
         </button>
     </div>

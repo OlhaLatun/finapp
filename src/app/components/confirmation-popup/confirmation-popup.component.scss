@@ -1,8 +1,12 @@
 .confirmation-popup-container {
-  padding: 20px;
-  .confirmation-popup-buttons {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
+    padding: 20px;
+    .confirmation-popup-buttons {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .delete-button-disabled {
+            background-color: gainsboro;
+        }
+    }
 }

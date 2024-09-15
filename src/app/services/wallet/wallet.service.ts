@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { from, Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
+import { first, map, Observable, Subject, switchMap, takeUntil } from 'rxjs';
 import { IndexedDbService } from '../indexedDB/indexed-db.service';
 import { DBStoreName } from '../../enums/indexedDB.enum';
 import { IncomeSource } from '../../interfaces/income-source.interface';
@@ -7,15 +7,18 @@ import { ExpenseCategory } from '../../interfaces/expense-category.interface';
 import { UserSettings } from '../../models/user-settings.model';
 import { LocalStorageKeys } from '../../enums/local-storage-keys.enum';
 import { LocalStorageService } from '../local-storage.service';
+import { UserService } from '../user.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class WalletService implements OnDestroy {
     private readonly unsubscriber = new Subject<void>();
+
     constructor(
         private readonly indexedDBService: IndexedDbService,
         private readonly localStorageService: LocalStorageService,
+        private readonly userService: UserService,
     ) {}
 
     ngOnDestroy() {
@@ -52,108 +55,149 @@ export class WalletService implements OnDestroy {
             ...expenseCategory,
             amount: expenseCategory.amount + value,
         };
-        return this.setExpenseCategory(updatedCategory);
+        return this.getCurrentUserExpenseCategories().pipe(
+            switchMap((expenseCategories) => {
+                const updatedCategories = expenseCategories.filter(
+                    (item) => item.id !== expenseCategory.id,
+                );
+
+                updatedCategories.push(updatedCategory);
+
+                return this.indexedDBService.setItem(
+                    DBStoreName.ExpenseCategory,
+                    this.userService.getUserID(),
+                    updatedCategories,
+                );
+            }),
+        );
     }
 
     public updateIncomeSourceAmount(
-        incomeSourceId: string,
+        incomeSourceId: number,
         newValue: number,
         deletion?: boolean,
     ): Observable<void> {
-        return this.getIncomeSourceById(incomeSourceId).pipe(
+        return this.getCurrentUserIncomeSource().pipe(
             takeUntil(this.unsubscriber),
             switchMap((incomeSource) => {
+                const incomeSourceItem = incomeSource.find(
+                    (item) => item.id === incomeSourceId,
+                );
                 let valueToUpdate: number;
                 if (deletion) {
-                    valueToUpdate = incomeSource.amount + newValue;
+                    valueToUpdate = incomeSourceItem.amount + newValue;
                 } else {
-                    valueToUpdate = incomeSource.amount - newValue;
+                    valueToUpdate = incomeSourceItem.amount - newValue;
                 }
 
-                const updatedIncomeSource: IncomeSource = {
-                    ...incomeSource,
+                const updatedSource: IncomeSource = {
+                    ...incomeSourceItem,
                     amount: valueToUpdate,
                 };
+
+                const updatedIncomeSource: IncomeSource[] = [
+                    ...incomeSource.filter(
+                        (item) => item.id !== incomeSourceId,
+                    ),
+                    updatedSource,
+                ];
+
                 return this.indexedDBService.setItem(
                     DBStoreName.IncomeSource,
-                    incomeSourceId,
+                    this.userService.getUserID(),
                     updatedIncomeSource,
                 );
             }),
         );
     }
 
-    public deleteItem(storeName: DBStoreName, id: number): void {
+    public deleteUserDataFromStore(storeName: DBStoreName, id: number): void {
         this.indexedDBService.deleteItemFormStore(storeName, id);
     }
 
-    public getExpenseCategoryList(): Observable<ExpenseCategory[]> {
-        return new Observable((observer) => {
-            this.indexedDBService
-                .getAllItemsFromStore(DBStoreName.ExpenseCategory)
-                .then((items) => {
-                    observer.next(items);
-                    observer.complete();
-                })
-                .catch((error) => observer.error(error));
-        });
+    public getIncomeSourceById(id: number): Observable<IncomeSource> {
+        return this.getCurrentUserIncomeSource().pipe(
+            map((incomeSource) => incomeSource.find((item) => item.id === id)),
+            first(),
+        );
     }
-
-    public getIncomeSourceList(): Observable<IncomeSource[]> {
-        return new Observable((observer) => {
-            this.indexedDBService
-                .getAllItemsFromStore(DBStoreName.IncomeSource)
-                .then((items) => {
-                    observer.next(items);
-                    observer.complete();
-                })
-                .catch((error) => observer.error(error));
-        });
-    }
-
-    public getIncomeSourceById(itemId: string): Observable<IncomeSource> {
-        return new Observable<IncomeSource>((observer) => {
-            this.indexedDBService
-                .getItemById(DBStoreName.IncomeSource, itemId)
-                .then((item) => {
-                    observer.next(item as IncomeSource);
-                    observer.complete();
-                })
-                .catch((reason) => observer.error(reason));
-        });
-    }
-
-    public getExpenseCategoryById(itemId: string): Observable<ExpenseCategory> {
-        return new Observable<ExpenseCategory>((observer) => {
-            this.indexedDBService
-                .getItemById(DBStoreName.ExpenseCategory, itemId)
-                .then((item) => {
-                    observer.next(item as ExpenseCategory);
-                    observer.complete();
-                })
-                .catch((reason) => observer.error(reason));
-        });
-    }
-
-    public setIncomeSource(incomeSource: IncomeSource): Observable<void> {
-        return from(
-            this.indexedDBService.setItem(
-                DBStoreName.IncomeSource,
-                incomeSource.id.toString(),
-                incomeSource,
+    public getExpenseCategoryById(id: number): Observable<IncomeSource> {
+        return this.getCurrentUserExpenseCategories().pipe(
+            map(
+                (expenseCategory) =>
+                    expenseCategory.find((item) => item.id === id),
+                first(),
             ),
-        ).pipe(switchMap(() => of(null)));
+        );
+    }
+
+    public getCurrentUserIncomeSource(): Observable<IncomeSource[]> {
+        return this.indexedDBService.getItemById(
+            DBStoreName.IncomeSource,
+            this.userService.getUserID(),
+        );
+    }
+
+    public getCurrentUserExpenseCategories(): Observable<ExpenseCategory[]> {
+        return this.indexedDBService.getItemById(
+            DBStoreName.ExpenseCategory,
+            this.userService.getUserID(),
+        );
+    }
+
+    public setIncomeSource(incomeSourceItem: IncomeSource): Observable<void> {
+        return this.indexedDBService
+            .getItemById(DBStoreName.IncomeSource, this.userService.getUserID())
+            .pipe(
+                switchMap((incomeSource) => {
+                    const data = incomeSource || [];
+                    return this.indexedDBService.setItem(
+                        DBStoreName.IncomeSource,
+                        this.userService.getUserID(),
+                        [...data, incomeSourceItem],
+                    );
+                }),
+            );
     }
 
     public setExpenseCategory(
         expenseCategory: ExpenseCategory,
     ): Observable<void> {
-        return from(
-            this.indexedDBService.setItem(
+        return this.indexedDBService
+            .getItemById(
                 DBStoreName.ExpenseCategory,
-                expenseCategory.id.toString(),
-                expenseCategory,
-            ),
-        ).pipe(switchMap(() => of(null)));
+                this.userService.getUserID(),
+            )
+            .pipe(
+                switchMap((expenseCategories) => {
+                    const data = expenseCategories || [];
+                    return this.indexedDBService.setItem(
+                        DBStoreName.ExpenseCategory,
+                        this.userService.getUserID(),
+                        [...data, expenseCategory],
+                    );
+                }),
+            );
+    }
+
+    public deleteExpenseCategory(expenseCategoryId: number): Observable<void> {
+        return this.indexedDBService
+            .getItemById(
+                DBStoreName.ExpenseCategory,
+                this.userService.getUserID(),
+            )
+            .pipe(
+                switchMap((expenseCategories) => {
+                    const data = expenseCategories.filter(
+                        (item) => item.id !== expenseCategoryId,
+                    );
+
+                    return this.indexedDBService.setItem(
+                        DBStoreName.ExpenseCategory,
+                        this.userService.getUserID(),
+                        [...data],
+                    );
+                }),
+            );
     }
 }
