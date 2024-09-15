@@ -1,5 +1,5 @@
-import { Injectable, OnDestroy, OnInit } from '@angular/core';
-import { from, Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
+import { Injectable, OnDestroy } from '@angular/core';
+import { first, map, Observable, Subject, switchMap, takeUntil } from 'rxjs';
 import { IndexedDbService } from '../indexedDB/indexed-db.service';
 import { DBStoreName } from '../../enums/indexedDB.enum';
 import { IncomeSource } from '../../interfaces/income-source.interface';
@@ -55,39 +55,80 @@ export class WalletService implements OnDestroy {
             ...expenseCategory,
             amount: expenseCategory.amount + value,
         };
-        return this.setExpenseCategory(updatedCategory);
+        return this.getCurrentUserExpenseCategories().pipe(
+            switchMap((expenseCategories) => {
+                const updatedCategories = expenseCategories.filter(
+                    (item) => item.id !== expenseCategory.id,
+                );
+
+                updatedCategories.push(updatedCategory);
+
+                return this.indexedDBService.setItem(
+                    DBStoreName.ExpenseCategory,
+                    this.userService.getUserID(),
+                    updatedCategories,
+                );
+            }),
+        );
     }
 
-    // public updateIncomeSourceAmount(
-    //     incomeSourceId: string,
-    //     newValue: number,
-    //     deletion?: boolean,
-    // ): Observable<void> {
-    //     // return this.getIncomeSourceById(this.userService.getUserID()).pipe(
-    //     //     takeUntil(this.unsubscriber),
-    //     //     switchMap((incomeSource) => {
-    //     //         let valueToUpdate: number;
-    //     //         if (deletion) {
-    //     //             valueToUpdate = incomeSource.amount + newValue;
-    //     //         } else {
-    //     //             valueToUpdate = incomeSource.amount - newValue;
-    //     //         }
-    //     //
-    //     //         const updatedIncomeSource: IncomeSource = {
-    //     //             ...incomeSource,
-    //     //             amount: valueToUpdate,
-    //     //         };
-    //     //         return this.indexedDBService.setItem(
-    //     //             DBStoreName.IncomeSource,
-    //     //             incomeSourceId,
-    //     //             updatedIncomeSource,
-    //     //         );
-    //     //     }),
-    //     // );
-    // }
+    public updateIncomeSourceAmount(
+        incomeSourceId: number,
+        newValue: number,
+        deletion?: boolean,
+    ): Observable<void> {
+        return this.getCurrentUserIncomeSource().pipe(
+            takeUntil(this.unsubscriber),
+            switchMap((incomeSource) => {
+                const incomeSourceItem = incomeSource.find(
+                    (item) => item.id === incomeSourceId,
+                );
+                let valueToUpdate: number;
+                if (deletion) {
+                    valueToUpdate = incomeSourceItem.amount + newValue;
+                } else {
+                    valueToUpdate = incomeSourceItem.amount - newValue;
+                }
 
-    public deleteItem(storeName: DBStoreName, id: number): void {
+                const updatedSource: IncomeSource = {
+                    ...incomeSourceItem,
+                    amount: valueToUpdate,
+                };
+
+                const updatedIncomeSource: IncomeSource[] = [
+                    ...incomeSource.filter(
+                        (item) => item.id !== incomeSourceId,
+                    ),
+                    updatedSource,
+                ];
+
+                return this.indexedDBService.setItem(
+                    DBStoreName.IncomeSource,
+                    this.userService.getUserID(),
+                    updatedIncomeSource,
+                );
+            }),
+        );
+    }
+
+    public deleteUserDataFromStore(storeName: DBStoreName, id: number): void {
         this.indexedDBService.deleteItemFormStore(storeName, id);
+    }
+
+    public getIncomeSourceById(id: number): Observable<IncomeSource> {
+        return this.getCurrentUserIncomeSource().pipe(
+            map((incomeSource) => incomeSource.find((item) => item.id === id)),
+            first(),
+        );
+    }
+    public getExpenseCategoryById(id: number): Observable<IncomeSource> {
+        return this.getCurrentUserExpenseCategories().pipe(
+            map(
+                (expenseCategory) =>
+                    expenseCategory.find((item) => item.id === id),
+                first(),
+            ),
+        );
     }
 
     public getCurrentUserIncomeSource(): Observable<IncomeSource[]> {
@@ -134,6 +175,27 @@ export class WalletService implements OnDestroy {
                         DBStoreName.ExpenseCategory,
                         this.userService.getUserID(),
                         [...data, expenseCategory],
+                    );
+                }),
+            );
+    }
+
+    public deleteExpenseCategory(expenseCategoryId: number): Observable<void> {
+        return this.indexedDBService
+            .getItemById(
+                DBStoreName.ExpenseCategory,
+                this.userService.getUserID(),
+            )
+            .pipe(
+                switchMap((expenseCategories) => {
+                    const data = expenseCategories.filter(
+                        (item) => item.id !== expenseCategoryId,
+                    );
+
+                    return this.indexedDBService.setItem(
+                        DBStoreName.ExpenseCategory,
+                        this.userService.getUserID(),
+                        [...data],
                     );
                 }),
             );

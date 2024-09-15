@@ -7,16 +7,16 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
+    combineLatest,
     filter,
     forkJoin,
     Observable,
-    of,
     Subject,
     switchMap,
     takeUntil,
     tap,
 } from 'rxjs';
-import { DBStoreName } from '../../enums/indexedDB.enum';
+
 import { MatDialog } from '@angular/material/dialog';
 import { IncomeSource } from '../../interfaces/income-source.interface';
 import { ExpenseCategory } from '../../interfaces/expense-category.interface';
@@ -108,31 +108,37 @@ export class WalletComponent implements OnInit, OnDestroy {
         const incomeSourceElemId = event.item.element.nativeElement.id;
         const categoryElemId = event.event.target.closest('div[id]').id;
 
-        // this.setDropItems(incomeSourceElemId, categoryElemId)
-        //     .pipe(switchMap(() => this.openInputDialog()))
-        //     .pipe(
-        //         filter((data) => !!data?.amountSpent),
-        //         switchMap((data) =>
-        //             forkJoin([
-        //                 this.walletService.updateExpenseAmount(
-        //                     this.expenseCategoryDropZone,
-        //                     +data?.amountSpent,
-        //                 ),
-        //                 // this.walletService.updateIncomeSourceAmount(
-        //                 //     this.droppedIncomeSource.id.toString(),
-        //                 //     +data?.amountSpent,
-        //                 // ),
-        //             ]),
-        //         ),
-        //         tap(() => {
-        //             this.getExpenseCategories();
-        //             this.getIncomeSource();
-        //         }),
-        //     )
-        //     .subscribe();
+        this.setDropItems(+incomeSourceElemId, +categoryElemId)
+            .pipe(
+                switchMap(() => {
+                    return this.openInputDialog().pipe(
+                        filter((data) => !!data?.amountSpent),
+                        switchMap((data) =>
+                            forkJoin([
+                                this.walletService.updateExpenseAmount(
+                                    this.expenseCategoryDropZone,
+                                    +data?.amountSpent,
+                                ),
+                                this.walletService.updateIncomeSourceAmount(
+                                    this.droppedIncomeSource.id,
+                                    +data?.amountSpent,
+                                ),
+                            ]),
+                        ),
+                        tap(() => {
+                            this.getExpenseCategories();
+                            this.getIncomeSource();
+                        }),
+                    );
+                }),
+            )
+
+            .subscribe();
     }
 
     private openInputDialog(): Observable<{ amountSpent: string }> {
+        if (this.droppedIncomeSource.amount === 0) return;
+
         const dialogRef = this.dialog.open(InputDialogComponent, {
             data: {
                 currency: this.currency,
@@ -147,24 +153,20 @@ export class WalletComponent implements OnInit, OnDestroy {
         return dialogRef.afterClosed();
     }
 
-    // private setDropItems(
-    //     incomeSourceId: string,
-    //     categoryElemId: string,
-    // ): Observable<void> {
-    //     // return forkJoin({
-    //     //     incomeSource:
-    //     //         this.walletService.getIncomeSourceById(incomeSourceId),
-    //     //     expenseCategory:
-    //     //         this.walletService.getExpenseCategoryById(categoryElemId),
-    //     // }).pipe(
-    //     //     takeUntil(this.unsubscriber),
-    //     //     tap(({ incomeSource, expenseCategory }) => {
-    //     //         this.droppedIncomeSource = incomeSource;
-    //     //         this.expenseCategoryDropZone = expenseCategory;
-    //     //     }),
-    //     //     switchMap(() => of(null)),
-    //     // );
-    // }
+    private setDropItems(
+        incomeSourceId: number,
+        categoryElemId: number,
+    ): Observable<[IncomeSource, IncomeSource]> {
+        return combineLatest([
+            this.walletService.getIncomeSourceById(incomeSourceId),
+            this.walletService.getExpenseCategoryById(categoryElemId),
+        ]).pipe(
+            tap(([incomeSource, expenseCategory]) => {
+                (this.expenseCategoryDropZone = expenseCategory),
+                    (this.droppedIncomeSource = incomeSource);
+            }),
+        );
+    }
 
     private initForms(): void {
         this.incomeSourceForm = this.formBuilder.group({
@@ -204,58 +206,39 @@ export class WalletComponent implements OnInit, OnDestroy {
             .subscribe();
     }
 
-    public deleteItem(itemId: number): void {
-        // this.walletService
-        //     .getExpenseCategoryById(itemId.toString())
-        //     .pipe(
-        //         takeUntil(this.unsubscriber),
-        //         tap((expenseCategoryToDelete) => {
-        //             if (expenseCategoryToDelete.amount > 0) {
-        //                 const dialogRef = this.dialog.open(
-        //                     ConfirmationPopupComponent,
-        //                     {
-        //                         width: '400px',
-        //                         height: 'auto',
-        //                         disableClose: true,
-        //                         data: {
-        //                             categoryToDelete: expenseCategoryToDelete,
-        //                             currency: this.currency,
-        //                             incomeSource: this.incomeSource,
-        //                         },
-        //                     },
-        //                 );
-        //
-        //                 dialogRef.afterClosed().subscribe((data) => {
-        //                     if (data.delete) {
-        //                         this.walletService.deleteItem(
-        //                             DBStoreName.ExpenseCategory,
-        //                             itemId,
-        //                         );
-        //                         this.getExpenseCategories();
-        //
-        //                         if (data.incomeSourceId) {
-        //                             // this.walletService
-        //                             //     .updateIncomeSourceAmount(
-        //                             //         data.incomeSourceId,
-        //                             //         expenseCategoryToDelete.amount,
-        //                             //         true,
-        //                             //     )
-        //                             //     .pipe(takeUntil(this.unsubscriber))
-        //                             //     .subscribe(() =>
-        //                             //         this.getIncomeSource(),
-        //                             //     );
-        //                         }
-        //                     }
-        //                 });
-        //             } else {
-        //                 this.walletService.deleteItem(
-        //                     DBStoreName.ExpenseCategory,
-        //                     itemId,
-        //                 );
-        //                 this.getExpenseCategories();
-        //             }
-        //         }),
-        //     )
-        //     .subscribe();
+    public deleteExpenseCategory(category: ExpenseCategory): void {
+        if (category.amount) {
+            this.dialog
+                .open(ConfirmationPopupComponent, {
+                    data: {
+                        categoryToDelete: category,
+                        currency: this.currency,
+                        incomeSource: this.incomeSource,
+                    },
+                })
+                .afterClosed()
+                .pipe(
+                    filter((data) => !!data.delete),
+                    switchMap((data) =>
+                        this.walletService.updateIncomeSourceAmount(
+                            data.incomeSourceId,
+                            category.amount,
+                            true,
+                        ),
+                    ),
+                    switchMap(() =>
+                        this.walletService
+                            .deleteExpenseCategory(category.id)
+                            .pipe(tap(() => this.getExpenseCategories())),
+                    ),
+                    tap(() => this.getIncomeSource()),
+                )
+                .subscribe();
+        } else {
+            this.walletService
+                .deleteExpenseCategory(category.id)
+                .pipe(tap(() => this.getExpenseCategories()))
+                .subscribe();
+        }
     }
 }
