@@ -10,10 +10,10 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogRef } from '@angular/material/dialog';
-import { WalletService } from '../../services/wallet/wallet.service';
 import { LocalStorageKeys } from '../../enums/local-storage-keys.enum';
 import { LocalStorageService } from '../../services/local-storage.service';
 import { UserSettings } from '../../models/user-settings.model';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('SettingsDialogComponent', () => {
     let component: SettingsDialogComponent;
@@ -32,6 +32,7 @@ describe('SettingsDialogComponent', () => {
                 MatSelectModule,
                 MatRadioModule,
                 BrowserAnimationsModule,
+                HttpClientModule,
             ],
             declarations: [SettingsDialogComponent],
             providers: [

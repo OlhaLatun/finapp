@@ -4,7 +4,9 @@ import { User } from '../models/user.model';
 import { UsersApiService } from './users.api.service';
 import { LocalStorageService } from './local-storage.service';
 
-@Injectable()
+@Injectable({
+    providedIn: 'root',
+})
 export class UserService {
     private readonly user = new BehaviorSubject<User | null>(null);
 
