@@ -24,6 +24,7 @@ import { InputDialogComponent } from '../input-dialog/input-dialog.component';
 import { WalletService } from '../../services/wallet/wallet.service';
 import { getCurrentMonthAndYear } from '../../utils/utils';
 import { ConfirmationPopupComponent } from '../confirmation-popup/confirmation-popup.component';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
     selector: 'app-wallet',
@@ -38,6 +39,9 @@ export class WalletComponent implements OnInit, OnDestroy {
     public currency = 'USD';
     private droppedIncomeSource: IncomeSource;
     private expenseCategoryDropZone: ExpenseCategory;
+    public Html = `
+        <a href="https://logwork.com/free-currency-converter-calculator" class="currency_convertor" data-currencies="USD,EUR,JPY,GBP,CNY,INR">Currency Converter</a>`;
+    public trustedHtml = this.sanitizer.bypassSecurityTrustHtml(this.Html);
 
     @ViewChild('confirmationPopup') public confirmationPopup: TemplateRef<any>;
 
@@ -47,6 +51,7 @@ export class WalletComponent implements OnInit, OnDestroy {
         private readonly formBuilder: FormBuilder,
         private readonly dialog: MatDialog,
         private readonly walletService: WalletService,
+        private readonly sanitizer: DomSanitizer,
     ) {}
 
     public getDate(): string {
@@ -65,6 +70,11 @@ export class WalletComponent implements OnInit, OnDestroy {
         this.walletService.initWalletDatabase();
         this.getExpenseCategories();
         this.getIncomeSource();
+
+        const script = document.createElement('script');
+        script.src = 'https://cdn.logwork.com/widget/currency_converter.js';
+        script.async = true;
+        document.body.appendChild(script);
     }
 
     public onIncomeSourceSubmit(): void {
