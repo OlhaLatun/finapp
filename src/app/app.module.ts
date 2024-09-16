@@ -13,7 +13,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { AppRoutingModule } from './app-routing.module';
 import { MatInputModule } from '@angular/material/input';
 import { AuthComponent } from './modules/auth/pages/login/auth.component';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
     MAT_RADIO_DEFAULT_OPTIONS,
@@ -37,7 +37,6 @@ import { AuthGuard } from './modules/auth/services/auth-guard/auth-guard.service
 import { InputDialogComponent } from './components/input-dialog/input-dialog.component';
 import { ConfirmationPopupComponent } from './components/confirmation-popup/confirmation-popup.component';
 import { MAT_DIALOG_SCROLL_STRATEGY_PROVIDER } from '@angular/material/dialog';
-import { RouterModule } from '@angular/router';
 @NgModule({
     declarations: [
         AppComponent,
@@ -85,6 +84,7 @@ import { RouterModule } from '@angular/router';
         UsersApiService,
         AuthGuard,
         MatDialog,
+        HttpClient,
     ],
     bootstrap: [AppComponent],
 })
