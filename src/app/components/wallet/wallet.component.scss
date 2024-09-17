@@ -13,16 +13,17 @@ aside {
 main {
     width: calc(60vw - 50px);
     padding: 0 24px;
+}
 
-    .current-month {
-        font-size: 24px;
-        margin: 20px 0;
-    }
+.current-month {
+    font-size: 24px;
+    margin: 20px 0;
 }
 
 .income-source-container {
     .income-source {
         padding: 20px;
+
         .income-source-item {
             color: darkslateblue;
             border: 2px solid;
@@ -32,6 +33,7 @@ main {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
             &_name {
                 display: flex;
                 align-items: center;
@@ -100,4 +102,80 @@ main {
     font-weight: 500;
     text-transform: uppercase;
     background-color: lightskyblue;
+}
+
+/* Tablet (width: 768px or more) */
+@media screen and (min-width: 768px) {
+    aside {
+        width: 30vw;
+    }
+
+    main {
+        width: calc(65vw - 50px);
+    }
+
+    .wallet-form {
+        .income-source-input,
+        .expense-category-input,
+        .income-amount-input {
+            width: 28vw;
+        }
+
+        .expense-category {
+            width: 40vw;
+        }
+    }
+
+    .expense-category-row .expense-category-col {
+        width: 28vw;
+    }
+}
+
+/* Mobile (width: 600px or less) */
+@media screen and (max-width: 600px) {
+    aside,
+    main {
+        display: block;
+        float: none;
+        width: 100%;
+        height: auto;
+    }
+
+    .wallet-form {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+
+        .income-source-input,
+        .expense-category-input,
+        .income-amount-input {
+            width: 100%;
+            margin-right: 0;
+        }
+
+        .add-btn {
+            width: 100%;
+            margin-top: 10px;
+        }
+    }
+
+    .income-source-item {
+        align-items: flex-start;
+    }
+
+    .expense-category-row {
+        align-items: flex-start;
+        padding: 10px;
+        font-size: 16px;
+        .expense-category-col {
+            width: 100%;
+            margin-right: 0;
+        }
+    }
+
+    .current-month {
+        font-size: 18px;
+        text-align: center;
+        margin: 10px 0;
+    }
 }
