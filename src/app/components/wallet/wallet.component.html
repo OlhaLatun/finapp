@@ -9,12 +9,12 @@
                 <mat-label>Income source</mat-label>
                 <input
                     matInput
-                    placeholder="Enter your income source"
+                    placeholder="{{ 'Enter your income source' | i18next }}"
                     formControlName="incomeSource"
                 />
             </mat-form-field>
             <mat-form-field class="income-amount-input">
-                <mat-label>Income amount</mat-label>
+                <mat-label> {{ 'Income amount' | i18next }}</mat-label>
                 <input
                     matInput
                     placeholder="Enter amount"
@@ -54,7 +54,7 @@
                         *cdkDragPlaceholder
                     ></div>
                     <div class="income-source-item_name">
-                        {{ source.amount.toFixed(2) }}
+                        {{ source.amount }}
                     </div>
                 </div>
             </ng-container>
