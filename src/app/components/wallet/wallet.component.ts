@@ -202,6 +202,17 @@ export class WalletComponent implements OnInit, OnDestroy {
         this.walletService
             .getCurrentUserExpenseCategories()
             .pipe(
+                map((source) =>
+                    source.map((item) => {
+                        return {
+                            ...item,
+                            amount: i18next.t('currency', {
+                                value: item.amount,
+                                currency: this.currency,
+                            }),
+                        } as unknown as ExpenseCategory;
+                    }),
+                ),
                 tap((categories) => (this.expenseCategories = categories)),
                 takeUntil(this.unsubscriber),
             )
