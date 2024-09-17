@@ -1,5 +1,5 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { APP_INITIALIZER, LOCALE_ID, NgModule } from '@angular/core';
+import { BrowserModule, Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -37,6 +37,63 @@ import { AuthGuard } from './modules/auth/services/auth-guard/auth-guard.service
 import { InputDialogComponent } from './components/input-dialog/input-dialog.component';
 import { ConfirmationPopupComponent } from './components/confirmation-popup/confirmation-popup.component';
 import { MAT_DIALOG_SCROLL_STRATEGY_PROVIDER } from '@angular/material/dialog';
+import {
+    I18NEXT_SERVICE,
+    I18NextModule,
+    I18NextTitle,
+    ITranslationService,
+} from 'angular-i18next';
+
+export function appInit(i18next: ITranslationService) {
+    return () =>
+        i18next.init({
+            lng: 'en',
+            fallbackLng: 'en',
+            debug: false,
+            returnEmptyString: false,
+            ns: ['translation', 'validation', 'error'],
+            resources: {
+                en: {
+                    translation: {
+                        currency: '{{value, currency}}',
+                    },
+                },
+            },
+            interpolation: {
+                escapeValue: false,
+                format: function (value, format, lng) {
+                    if (format === 'currency') {
+                        return new Intl.NumberFormat(lng, {
+                            style: 'currency',
+                            currency: lng === 'en' ? 'USD' : 'UAH',
+                        }).format(value);
+                    }
+                    return value;
+                },
+            },
+        });
+}
+export function localeIdFactory(i18next: ITranslationService) {
+    return i18next.language;
+}
+export const I18N_PROVIDERS = [
+    {
+        provide: APP_INITIALIZER,
+        useFactory: appInit,
+        deps: [I18NEXT_SERVICE],
+        multi: true,
+    },
+    {
+        provide: Title,
+        useClass: I18NextTitle,
+    },
+    {
+        provide: LOCALE_ID,
+        deps: [I18NEXT_SERVICE],
+        useFactory: localeIdFactory,
+    },
+];
+
 @NgModule({
     declarations: [
         AppComponent,
@@ -69,6 +126,7 @@ import { MAT_DIALOG_SCROLL_STRATEGY_PROVIDER } from '@angular/material/dialog';
         FormsModule,
         MatTableModule,
         DragDropModule,
+        I18NextModule.forRoot(),
     ],
     providers: [
         provideAnimations(),
@@ -85,6 +143,7 @@ import { MAT_DIALOG_SCROLL_STRATEGY_PROVIDER } from '@angular/material/dialog';
         AuthGuard,
         MatDialog,
         HttpClient,
+        I18N_PROVIDERS,
     ],
     bootstrap: [AppComponent],
 })

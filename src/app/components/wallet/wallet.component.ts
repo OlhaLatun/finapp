@@ -10,6 +10,7 @@ import {
     combineLatest,
     filter,
     forkJoin,
+    map,
     Observable,
     Subject,
     switchMap,
@@ -25,6 +26,7 @@ import { WalletService } from '../../services/wallet/wallet.service';
 import { getCurrentMonthAndYear } from '../../utils/utils';
 import { ConfirmationPopupComponent } from '../confirmation-popup/confirmation-popup.component';
 import { DomSanitizer } from '@angular/platform-browser';
+import i18next from 'i18next';
 
 @Component({
     selector: 'app-wallet',
@@ -210,7 +212,20 @@ export class WalletComponent implements OnInit, OnDestroy {
         this.walletService
             .getCurrentUserIncomeSource()
             .pipe(
-                tap((incomeSource) => (this.incomeSource = incomeSource)),
+                map((source) =>
+                    source.map((item) => {
+                        return {
+                            ...item,
+                            amount: i18next.t('currency', {
+                                value: item.amount,
+                                currency: this.currency,
+                            }),
+                        } as unknown as IncomeSource;
+                    }),
+                ),
+                tap((incomeSource) => {
+                    this.incomeSource = incomeSource;
+                }),
                 takeUntil(this.unsubscriber),
             )
             .subscribe();
